@@ -1052,6 +1052,32 @@ function tick() {
 try {
   setupScene();
   bindInput();
+  if(new URLSearchParams(location.search).has('qa')){
+    window.__nocturneQA={
+      getState:()=>({act:state.act,health:state.health,score:state.score,data:state.data,
+        defeated:state.defeated,special:state.special,finished:state.finished,
+        bossHealth:encounter?.boss?.hp??null}),
+      startBoss:()=>{
+        if(!state.active)resetGame();
+        state.data=3;state.defeated=5;
+        for(const e of enemies){e.alive=false;scene.remove(e.root,e.ring);}
+        for(const item of intelItems){item.taken=true;scene.remove(item.root);}
+        checkFinished();updateHUD();
+      },
+      chargeEMP:()=>{state.special=100;updateHUD();},
+      damageBoss:amount=>{
+        const b=encounter?.boss;
+        if(!b)return false;
+        playerPosition.set(b.group.position.x,0,b.group.position.z+3);
+        player.position.copy(playerPosition);
+        const loops=Math.min(Math.max(Math.ceil(amount),1),25);
+        let result=false;
+        for(let i=0;i<loops;i++)result=encounter?.hitBoss(1)||result;
+        return result;
+      },
+      restart:()=>resetGame()
+    };
+  }
   tick();
 } catch(error) {
   console.error('NOCTURNE could not initialize:',error);
