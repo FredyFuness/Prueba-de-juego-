@@ -9,15 +9,26 @@ const executable='/usr/bin/google-chrome';
   try{
     const page=await browser.newPage();
     await page.setViewport({width:844,height:390,deviceScaleFactor:2,isMobile:true,hasTouch:true});
-    const errors=[];
+    const errors=[],consoleErrors=[],failedRequests=[];
     page.on('pageerror',e=>errors.push(e.message));
+    page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
+    page.on('requestfailed',r=>failedRequests.push(r.url()+': '+r.failure()?.errorText));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle2',timeout:45000});
     await page.waitForSelector('#start-button');
     await page.waitForFunction(()=>document.querySelector('canvas#game-canvas')?.width>0,{timeout:25000});
     assert(await page.$('#start-button'),'Start button not found');
     await page.screenshot({path:'/tmp/nocturne-intro.png'});
     await page.click('#start-button');
-    await page.waitForFunction(()=>document.querySelector('#hud')&&!document.querySelector('#hud').classList.contains('hidden'),{timeout:12000});
+    await new Promise(resolve=>setTimeout(resolve,1000));
+    const diagnostics=await page.evaluate(()=>({
+      webgl2:!!document.createElement('canvas').getContext('webgl2'),
+      error:document.querySelector('#load-error')?.textContent,
+      errorHidden:document.querySelector('#load-error')?.classList.contains('hidden'),
+      hudHidden:document.querySelector('#hud')?.classList.contains('hidden'),
+      startHidden:document.querySelector('#start-screen')?.classList.contains('hidden')
+    }));
+    console.log('Debug browser startup:',JSON.stringify({diagnostics,errors,consoleErrors,failedRequests}));
+    await page.waitForFunction(()=>document.querySelector('#hud')&&!document.querySelector('#hud').classList.contains('hidden'),{timeout:15000});
     await page.waitForSelector('[data-action="dodge"]');
     await page.screenshot({path:'/tmp/nocturne-gameplay.png'});
     const state=await page.evaluate(()=>{
