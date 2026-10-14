@@ -22,12 +22,14 @@ const executable='/usr/bin/google-chrome';
     await new Promise(resolve=>setTimeout(resolve,1000));
     const diagnostics=await page.evaluate(()=>({
       webgl2:!!document.createElement('canvas').getContext('webgl2'),
+      startupStack:window.__nocturneStartupError||'',
       error:document.querySelector('#load-error')?.textContent,
       errorHidden:document.querySelector('#load-error')?.classList.contains('hidden'),
       hudHidden:document.querySelector('#hud')?.classList.contains('hidden'),
       startHidden:document.querySelector('#start-screen')?.classList.contains('hidden')
     }));
     console.log('Debug browser startup:',JSON.stringify({diagnostics,errors,consoleErrors,failedRequests}));
+    assert(!diagnostics.startupStack,'Game startup failed: '+diagnostics.startupStack);
     await page.waitForFunction(()=>document.querySelector('#hud')&&!document.querySelector('#hud').classList.contains('hidden'),{timeout:15000});
     await page.waitForSelector('[data-action="dodge"]');
     await page.screenshot({path:'/tmp/nocturne-gameplay.png'});
