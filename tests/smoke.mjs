@@ -46,7 +46,7 @@ for (const mode of ['eco', 'balanced', 'cinematic']) {
 assert(premium.includes('createAtmosphere('), 'Falta cielo nocturno procedimental');
 assert(premium.includes('makeWetStreets('), 'Faltan materiales de asfalto mojado');
 assert(premium.includes('neonDistrict('), 'Falta iluminación urbana');
-assert(premium.includes('createVehicles('), 'Faltan vehículos urbanos');
+assert(premium.includes('createPremiumVehicles('), 'Faltan vehículos urbanos detallados');
 assert(premium.includes('addHeroArmor('), 'Falta armadura detallada');
 assert(sw.includes('premium-graphics.js'), 'La caché no incluye el motor premium');
 assert(sw.includes('hero.js'), 'La caché no incluye el personaje 3D original');
