@@ -100,6 +100,7 @@ function setupScene() {
   moon.castShadow = !MOBILE;
   moon.shadow.mapSize.set(1024, 1024);
   Object.assign(moon.shadow.camera, { left: -65, right: 65, top: 65, bottom: -65, near: 1, far: 170 });
+  moon.shadow.camera.updateProjectionMatrix();
   scene.add(moon);
   const moonDisc = mesh(new THREE.SphereGeometry(5, 20, 14),
     new THREE.MeshBasicMaterial({ color: 0xadd9f7 }), scene, -73, 72, -91);
@@ -124,6 +125,10 @@ function createCity() {
   const streetMat = material(0x111b27);
   const sidewalkMat = material(0x344557);
   const stripeMat = new THREE.MeshBasicMaterial({ color: 0x617381 });
+  for (const avenue of ['x', 'z']) {
+    const mainRoad = mesh(cube, streetMat, scene, 0, 0.017, 0);
+    mainRoad.scale.set(avenue === 'x' ? 12 : 166, .02, avenue === 'z' ? 12 : 166);
+  }
   for (let i = -70; i <= 70; i += 20) {
     const roadX = mesh(cube, streetMat, scene, i, 0.012, 0);
     roadX.scale.set(6.5, 0.015, 166);
