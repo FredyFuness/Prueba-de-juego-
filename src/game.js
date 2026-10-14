@@ -120,7 +120,19 @@ function setupScene() {
   createGrapple();
   actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify});
   premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
-  actorSystem.start().catch(error=>console.warn('Optional 3D asset could not load',error));
+  actorSystem.start().then(result=>{
+    window.__nocturneModelStatus={loaded:result.loaded,characters:result.characters,error:result.error};
+    document.documentElement.dataset.actorModel=result.loaded?'gltf':'procedural';
+    const status=$('model-status');
+    if(status)status.textContent=result.loaded
+      ?'✓ Personajes 3D animados listos'
+      :'○ Se utiliza personaje alternativo; revisa la conexión';
+  }).catch(error=>{
+    console.warn('Optional 3D asset could not load',error);
+    window.__nocturneModelStatus={loaded:false,error:String(error)};
+    const status=$('model-status');
+    if(status)status.textContent='○ Modo gráfico alternativo';
+  });
   window.addEventListener('resize', resize);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state.active && !state.paused && !state.finished) pauseGame();
