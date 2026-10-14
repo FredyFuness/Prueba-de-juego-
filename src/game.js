@@ -285,7 +285,7 @@ function createIntel() {
 }
 function createRain(){
   // Streaks (rather than point sprites) have real vertical rain silhouettes.
-  const count=MOBILE?170:500;
+  const count=MOBILE?270:650;
   rainPositions=new Float32Array(count*6);
   for(let i=0;i<count;i++){
     const x=(Math.random()-.5)*38,y=Math.random()*24+1,z=(Math.random()-.5)*38;
@@ -296,7 +296,7 @@ function createRain(){
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.BufferAttribute(rainPositions,3));
   rain=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({
-    color:0x9acde9,transparent:true,opacity:MOBILE?.39:.48,depthWrite:false
+    color:0xa8d4ed,transparent:true,opacity:MOBILE?.47:.52,depthWrite:false
   }));
   rain.frustumCulled=false;scene.add(rain);
 }
