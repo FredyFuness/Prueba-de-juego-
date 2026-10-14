@@ -61,8 +61,17 @@ function addVisualDetails(host,hostile=false){
   const shoulder=new THREE.Mesh(new THREE.TorusGeometry(.67,.07,6,28,Math.PI),chrome);
   shoulder.position.set(0,1.89,.03);shoulder.rotation.x=-Math.PI/2;
   group.add(shoulder);
-  const light=new THREE.PointLight(0xa7e7ff,2.35,8,2);
-  light.position.set(0,2.9,1.45);group.add(light);
+  // Rear light strips and shoulder rim make the night hero readable even from behind.
+  for(const side of [-1,1]){
+    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.055,.38,.055),accented);
+    stripe.position.set(side*.31,1.56,.39);
+    stripe.rotation.z=side*.38;
+    group.add(stripe);
+  }
+  const spine=new THREE.Mesh(new THREE.BoxGeometry(.065,.30,.055),accented);
+  spine.position.set(0,1.38,.41);group.add(spine);
+  const light=new THREE.PointLight(0xb4dfff,3.2,9,2);
+  light.position.set(0,3.1,1.65);group.add(light);
  }
  return group;
 }
