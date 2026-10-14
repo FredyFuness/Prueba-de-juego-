@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { installPremiumGraphics } from './premium-graphics.js';
 import { makeHero, makeRaider } from './hero.js';
 import { createActorSystem } from './actors.js';
+import { createEncounter } from './encounter.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('game-canvas');
@@ -20,13 +21,15 @@ const state = {
   active: false, paused: false, finished: false, health: 100, score: 0,
   data: 0, defeated: 0, grappleCooldown: 0, attackCooldown: 0, damageCooldown: 0,
   glide: false, grounded: true, velocityY: 0, grapple: null, time: 0, toastTime: 0,
-  dodgeTime:0, dodgeCooldown:0, comboTime:0, movingSpeed:0, lastJump:0,
+  dodgeTime:0, dodgeCooldown:0, comboTime:0, comboHits:0, special:35,
+  act:1, movingSpeed:0, lastJump:0,
   camYaw: 0, camPitch: 0.36, introYaw: 0, lastMap: 0
 };
 const moveInput = { x: 0, z: 0 };
 const keys = new Set();
 let renderer, scene, camera, player, cape, leftArm, rightArm, leftLeg, rightLeg;
-let heroRig=null,cameraShake=0,attackCombo=0,actorSystem=null;
+let heroRig=null,cameraShake=0,attackCombo=0,actorSystem=null,encounter=null;
+const RECORD_KEY='nocturne-records-v5';
 let premiumGraphics=null;
 let qualityAuto=true, qualityTimer=0, qualityFrames=0, slowIntervals=0;
 let rain, rainPositions, grappleLine, grapplePositions, playerLight;
@@ -88,6 +91,11 @@ function updateHUD() {
   ui.score.textContent = String(state.score).padStart(4, '0');
   ui.intel.textContent = state.data + ' / 3';
   ui.enemies.textContent = state.defeated + ' / 5';
+  const fill=$('special-fill'),status=$('special-status');
+  if(fill)fill.style.width=Math.min(100,state.special)+'%';
+  if(status)status.textContent=state.special>=100?'LISTO':'CARGANDO '+Math.floor(state.special)+'%';
+  const combo=$('combo-value');if(combo)combo.textContent=state.comboHits>1&&state.comboTime>0?'×'+state.comboHits:'';
+  const label=$('combo-label');if(label)label.textContent=state.comboHits>1&&state.comboTime>0?'COMBO EN CADENA':'';
   const quick=$('quick-progress');
   if(quick)quick.textContent=state.data+'/3 ◈ '+state.defeated+'/5';
 }
@@ -120,6 +128,11 @@ function setupScene() {
   createIntel();
   createRain();
   createGrapple();
+  encounter=createEncounter({scene,playerPosition,hurt,notify,
+    onVictory:()=>endGame(true),
+    onScore:points=>{state.score+=points;updateHUD();}
+  });
+  updateCareer();
   actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify,cape:heroRig.cape});
   premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
   actorSystem.start().then(result=>{
