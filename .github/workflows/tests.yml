@@ -20,5 +20,7 @@ jobs:
         run: node --check src/game.js
       - name: Validar sintaxis de gráficos premium
         run: node --check src/premium-graphics.js
+      - name: Validar personaje y animaciones
+        run: node --check src/hero.js
       - name: Validar controles, interfaz y PWA
         run: node tests/smoke.mjs
