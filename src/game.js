@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { installPremiumGraphics } from './premium-graphics.js';
+import { makeHero, makeRaider } from './hero.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('game-canvas');
@@ -18,6 +19,7 @@ const state = {
   active: false, paused: false, finished: false, health: 100, score: 0,
   data: 0, defeated: 0, grappleCooldown: 0, attackCooldown: 0, damageCooldown: 0,
   glide: false, grounded: true, velocityY: 0, grapple: null, time: 0, toastTime: 0,
+  dodgeTime:0, dodgeCooldown:0, comboTime:0, movingSpeed:0, lastJump:0,
   camYaw: 0, camPitch: 0.36, introYaw: 0, lastMap: 0
 };
 const moveInput = { x: 0, z: 0 };
@@ -230,74 +232,22 @@ function createLamp(x, z, rotate = false) {
   lamp.scale.set(.23, .15, .23);
 }
 function createPlayer() {
-  player = new THREE.Group();
-  player.position.copy(playerPosition);
+  heroRig = makeHero();
+  player = heroRig.root;
+  leftArm=heroRig.arms[0];rightArm=heroRig.arms[1];
+  leftLeg=heroRig.legs[0];rightLeg=heroRig.legs[1];
+  cape=heroRig.cape;
   scene.add(player);
-  const armor = material(0x172b3b, 0x071321, .25);
-  const detail = material(0x355065);
-  const bright = new THREE.MeshBasicMaterial({ color: 0x75edff });
-  const suit = mesh(new THREE.CylinderGeometry(.55, .46, 1.12, 7), armor, player, 0, 1.45, 0);
-  suit.rotation.y = Math.PI / 7;
-  block(player, 0x273f50, [1.14, .2, .55], [0, 1.86, 0]);
-  block(player, 0x25475b, [.45, .16, .07], [0, 1.78, -.49], 0x126d90, .6);
-  block(player, 0x5be4fc, [.21, .055, .045], [0, 1.78, -.532], 0x3bd3ff, 1.4);
-  const belt = block(player, 0x708b96, [1.12, .17, .8], [0, .94, 0]);
-  const helmet = mesh(new THREE.SphereGeometry(.38, 9, 8), armor, player, 0, 2.33, 0);
-  helmet.scale.set(1, 1.13, .98);
-  block(player, 0x172b3b, [.15, .31, .16], [-.23, 2.65, 0]);
-  block(player, 0x172b3b, [.15, .31, .16], [.23, 2.65, 0]);
-  block(player, 0x96f4ff, [.19, .065, .025], [-.155, 2.37, -.354], 0x45c9f0, 1.5);
-  block(player, 0x96f4ff, [.19, .065, .025], [.155, 2.37, -.354], 0x45c9f0, 1.5);
-  leftArm = new THREE.Group(); rightArm = new THREE.Group();
-  leftArm.position.set(-.65, 1.85, 0); rightArm.position.set(.65, 1.85, 0);
-  player.add(leftArm, rightArm);
-  block(leftArm, 0x1f3748, [.35, 1.04, .42], [0, -.52, 0]);
-  block(rightArm, 0x1f3748, [.35, 1.04, .42], [0, -.52, 0]);
-  block(leftArm, 0x61798b, [.43, .32, .46], [0, -.72, 0]);
-  block(rightArm, 0x61798b, [.43, .32, .46], [0, -.72, 0]);
-  leftLeg = new THREE.Group(); rightLeg = new THREE.Group();
-  leftLeg.position.set(-.28, .91, 0); rightLeg.position.set(.28, .91, 0);
-  player.add(leftLeg, rightLeg);
-  block(leftLeg, 0x182c3c, [.42, .9, .48], [0, -.43, 0]);
-  block(rightLeg, 0x182c3c, [.42, .9, .48], [0, -.43, 0]);
-  block(leftLeg, 0x3b5264, [.46, .25, .63], [0, -.82, -.09]);
-  block(rightLeg, 0x3b5264, [.46, .25, .63], [0, -.82, -.09]);
-  const capeGeo = new THREE.BufferGeometry();
-  capeGeo.setAttribute('position', new THREE.Float32BufferAttribute([
-    -.52, 1.95, .24, -.96, .06, .62, -.35, .25, .69,
-    -.52, 1.95, .24, -.35, .25, .69, 0, .03, .95,
-    -.52, 1.95, .24, 0, .03, .95, .52, 1.95, .24,
-    .52, 1.95, .24, 0, .03, .95, .35, .25, .69,
-    .52, 1.95, .24, .35, .25, .69, .96, .06, .62
-  ], 3));
-  capeGeo.computeVertexNormals();
-  const capeBaseX = Array.from(capeGeo.attributes.position.array).filter((_, i) => i % 3 === 0);
-  capeGeo.userData.baseX = capeBaseX;
-  cape = mesh(capeGeo, new THREE.MeshStandardMaterial({
-    color: 0x0b1b2c, side: THREE.DoubleSide, roughness: .86, metalness: .1
-  }), player);
-  playerLight = new THREE.PointLight(0x1acaff, 1.2, 7);
-  playerLight.position.set(0, 2.1, -1);
-  player.add(playerLight);
+  player.position.copy(playerPosition);
 }
-function createEnemy(x, z, index) {
-  const root = new THREE.Group();
-  root.position.set(x, 0, z);
+function createEnemy(x,z,index) {
+  const root=makeRaider();
+  root.position.set(x,0,z);
   scene.add(root);
-  const dark = material(0x44313b, 0x1c080b, .15);
-  block(root, 0x34252e, [.85, 1.2, .61], [0, 1.1, 0]);
-  block(root, 0x65434d, [.95, .3, .7], [0, 1.53, 0]);
-  block(root, 0x39252d, [.62, .55, .59], [0, 1.96, 0]);
-  block(root, 0xff625b, [.55, .13, .08], [0, 1.99, -.33], 0xff4433, 1.5);
-  block(root, 0x41313b, [.26, .85, .28], [-.53, 1.05, 0]);
-  block(root, 0x41313b, [.26, .85, .28], [.53, 1.05, 0]);
-  block(root, 0x28232b, [.3, .65, .35], [-.23, .36, 0]);
-  block(root, 0x28232b, [.3, .65, .35], [.23, .36, 0]);
-  const ring = mesh(new THREE.TorusGeometry(1.15, .035, 4, 28),
-    new THREE.MeshBasicMaterial({ color: 0xff5c69, transparent: true, opacity: .7 }), scene, x, .1, z);
-  ring.rotation.x = Math.PI / 2;
-  const entity = { root, ring, x, z, hp: 3, alive: true, cd: index * .22, hit: 0, phase: index * 2.1 };
-  enemies.push(entity);
+  const ring=mesh(new THREE.TorusGeometry(.92,.023,4,28),
+    new THREE.MeshBasicMaterial({color:0xff667e,transparent:true,opacity:.44}),scene,x,.09,z);
+  ring.rotation.x=Math.PI/2;
+  enemies.push({root,ring,x,z,hp:3,alive:true,cd:index*.3,hit:0,phase:index*2.1});
 }
 function createEnemies() {
   [[0,-18], [0,-51], [28,0], [-30,0], [0,48]].forEach((pos,i) => createEnemy(pos[0],pos[1],i));
@@ -317,19 +267,22 @@ function createIntel() {
     intelItems.push({ root, crystal, halo, x, z, taken: false, phase: i * 1.8 });
   });
 }
-function createRain() {
-  const count = MOBILE ? 250 : 550;
-  rainPositions = new Float32Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    rainPositions[i*3] = (Math.random() - .5) * 54;
-    rainPositions[i*3+1] = Math.random() * 36 + 2;
-    rainPositions[i*3+2] = (Math.random() - .5) * 54;
+function createRain(){
+  // Streaks (rather than point sprites) have real vertical rain silhouettes.
+  const count=MOBILE?170:500;
+  rainPositions=new Float32Array(count*6);
+  for(let i=0;i<count;i++){
+    const x=(Math.random()-.5)*38,y=Math.random()*24+1,z=(Math.random()-.5)*38;
+    const j=i*6;
+    rainPositions[j]=x;rainPositions[j+1]=y;rainPositions[j+2]=z;
+    rainPositions[j+3]=x-.15;rainPositions[j+4]=y-(.45+Math.random()*.72);rainPositions[j+5]=z+.07;
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
-  rain = new THREE.Points(geo,
-    new THREE.PointsMaterial({ color: 0x7ab5dc, size: .065, transparent: true, opacity: .47, depthWrite: false }));
-  scene.add(rain);
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(rainPositions,3));
+  rain=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({
+    color:0x9acde9,transparent:true,opacity:MOBILE?.39:.48,depthWrite:false
+  }));
+  rain.frustumCulled=false;scene.add(rain);
 }
 function createGrapple() {
   grapplePositions = new Float32Array(6);
@@ -433,10 +386,26 @@ function emitParticles(x, y, z, color = 0x77e8ff, count = 12) {
   }
   effects.push(...dots);
 }
+function doDodge(){
+  if(!state.active||state.paused||state.finished||state.dodgeCooldown>0||state.grapple)return;
+  const x=-Math.sin(player.rotation.y),z=-Math.cos(player.rotation.y);
+  for(let i=1;i<=7;i++){
+    const nextX=playerPosition.x+x*.7,nextZ=playerPosition.z+z*.7;
+    if(isBlocked(nextX,nextZ,playerPosition.y))break;
+    playerPosition.x=nextX;playerPosition.z=nextZ;
+  }
+  state.dodgeTime=.4;
+  state.dodgeCooldown=1.3;
+  state.damageCooldown=.44;
+  cameraShake=.055;
+  chime(440,.12,'triangle',.02);
+}
 function doAttack() {
   if (!state.active || state.paused || state.finished || state.attackCooldown > 0) return;
-  state.attackCooldown = .44;
-  rightArm.rotation.x = -1.4;
+  state.attackCooldown = .37;
+  state.comboTime=1.1;
+  attackCombo=(attackCombo+1)%3;
+  cameraShake=.08;
   chime(115, .12, 'triangle', .09);
   const candidates = enemies.filter(e => e.alive && playerPosition.distanceTo(e.root.position) < 4.1
     && Math.abs(playerPosition.y - e.root.position.y) < 3.0);
@@ -444,6 +413,8 @@ function doAttack() {
   const target = candidates[0];
   if (!target) return;
   target.hp -= 1;
+  const toTarget=Math.atan2(-(target.root.position.x-playerPosition.x),-(target.root.position.z-playerPosition.z));
+  player.rotation.y=toTarget;
   target.hit = .2;
   target.root.position.x += (target.x - playerPosition.x) * .05;
   target.root.position.z += (target.z - playerPosition.z) * .05;
@@ -465,6 +436,7 @@ function hurt(amount) {
   if (state.damageCooldown > 0 || state.finished) return;
   state.health = Math.max(0, state.health - amount);
   state.damageCooldown = 1.4;
+  cameraShake=.27;
   notify('¡ATAQUE RECIBIDO!  -' + amount + ' INTEGRIDAD', 1.2);
   chime(140, .25, 'sawtooth', .07);
   updateHUD();
@@ -494,6 +466,7 @@ function resetGame() {
   state.health=100; state.score=0; state.data=0; state.defeated=0;
   state.grappleCooldown=0; state.attackCooldown=0; state.damageCooldown=0;
   state.glide=false; state.grounded=true; state.velocityY=0; state.grapple=null;
+  state.dodgeCooldown=0;state.dodgeTime=0;state.comboTime=0;state.movingSpeed=0;
   state.camYaw=0; state.camPitch=.36; state.time=0; state.finished=false;
   for (const e of enemies) { scene.remove(e.root, e.ring); }
   for (const item of intelItems) scene.remove(item.root);
@@ -573,27 +546,14 @@ function updatePlayer(dt) {
     } else {
       state.grounded=false;
     }
-    const stride = Math.sin(state.time * 13.7) * (magnitude > .06 && state.grounded ? .44 : .05);
-    leftLeg.rotation.x = stride; rightLeg.rotation.x = -stride;
-    leftArm.rotation.x = -stride * .65;
-    rightArm.rotation.x = state.attackCooldown > 0 ? -1.35 * (state.attackCooldown/.44) : stride * .65;
-    player.position.y = playerPosition.y + (state.grounded && magnitude > .06 ? Math.abs(stride) * .06 : 0);
+    state.movingSpeed=speed*magnitude;
+    player.position.y=playerPosition.y+(state.grounded&&magnitude>.06?Math.abs(Math.sin(state.time*11))*.025:0);
   }
-  player.position.x = playerPosition.x;
-  player.position.z = playerPosition.z;
-  if (state.grapple) player.position.y = playerPosition.y;
-  const vertices = cape.geometry.attributes.position;
-  for (let i = 0; i < vertices.count; i++) {
-    const y = vertices.getY(i);
-    if (y < 1.5) {
-      const x = cape.geometry.userData.baseX[i];
-      const baseZ = Math.abs(x) > .75 ? .62 : Math.abs(x) < .1 ? .95 : .69;
-      vertices.setZ(i, baseZ + (state.glide ? .75 : Math.sin(state.time * 7 + x * 2) * .09));
-      vertices.setX(i, state.glide ? x * 1.8 : x);
-    }
-  }
-  vertices.needsUpdate = true;
-  cape.geometry.computeVertexNormals();
+  player.position.x=playerPosition.x;
+  player.position.z=playerPosition.z;
+  if(state.grapple)player.position.y=playerPosition.y;
+  const movingSpeed=state.grapple?15:state.movingSpeed;
+  heroRig.animate(dt,movingSpeed,state.glide,state.attackCooldown>.1,state.dodgeTime>0);
   if (state.grapple) {
     const pos = grappleLine.geometry.attributes.position;
     pos.setXYZ(0, playerPosition.x, playerPosition.y + 1.9, playerPosition.z);
@@ -619,7 +579,7 @@ function updateEnemies(dt) {
       if (!isBlocked(nx, e.root.position.z, 0)) e.root.position.x = nx;
       if (!isBlocked(e.root.position.x, nz, 0)) e.root.position.z = nz;
     }
-    if (dist < 2.1 && playerPosition.y < 3.1 && e.cd <= 0) {
+    if (dist < 2.1 && playerPosition.y < 3.1 && e.cd <= 0 && state.dodgeTime<=0) {
       e.cd = 2.1;
       hurt(12);
     }
@@ -654,36 +614,71 @@ function updateEffects(dt) {
     if (p.life<=0) {scene.remove(p.obj); effects.splice(i,1);}
   }
 }
-function updateRain(dt) {
+function updateRain(dt){
+  if(!rain)return;
   const a=rain.geometry.attributes.position;
-  const n=a.count;
-  for(let i=0;i<n;i++) {
-    let y=a.getY(i)-dt*(15+(i%5)*2);
-    if(y<0)y=25+Math.random()*12;
-    a.setY(i,y);
+  for(let i=0;i<a.count;i+=2){
+    let y=a.getY(i)-dt*(19+i%9);
+    if(y<0)y=23+Math.random()*12;
+    const len=.52+(i%7)*.115;
+    a.setY(i,y);a.setY(i+1,y-len);
   }
   a.needsUpdate=true;
-  rain.position.x=playerPosition.x;
-  rain.position.z=playerPosition.z;
+  rain.position.x=playerPosition.x;rain.position.z=playerPosition.z;
 }
 function updateCamera(dt) {
-  if (!state.active) {
-    state.introYaw += dt*.055;
-    camera.position.set(42 + Math.sin(state.introYaw)*4, 27, 48 + Math.cos(state.introYaw)*4);
-    camera.lookAt(0,12,0);
+  if(!state.active){
+    state.introYaw+=dt*.12;
+    camera.position.set(10+Math.sin(state.introYaw)*2.0,5.3,9+Math.cos(state.introYaw)*1.5);
+    camera.lookAt(0,2.4,-8);
     return;
   }
+  // Over-the-shoulder framing: closer camera, visible torso, cinematic headroom.
   const yaw=state.camYaw;
-  const distance = MOBILE ? 10.2 : 10.8;
-  const height=3.25 + Math.sin(state.camPitch)*distance;
+  const movingBoost=Math.min(.75,state.movingSpeed*.08);
+  const distance=(MOBILE?6.25:6.55)+movingBoost+(state.glide?2.0:0);
+  const pitch=state.camPitch;
+  const cp=Math.cos(pitch);
+  const shoulder=state.glide?0:0.48;
   cameraGoal.set(
-    playerPosition.x+Math.sin(yaw)*distance*Math.cos(state.camPitch),
-    playerPosition.y+height,
-    playerPosition.z+Math.cos(yaw)*distance*Math.cos(state.camPitch)
+    playerPosition.x+Math.sin(yaw)*distance*cp +Math.cos(yaw)*shoulder,
+    playerPosition.y+1.65+Math.sin(pitch)*distance,
+    playerPosition.z+Math.cos(yaw)*distance*cp -Math.sin(yaw)*shoulder
   );
-  if (camera.position.distanceToSquared(cameraGoal)>1500) camera.position.copy(cameraGoal);
-  camera.position.lerp(cameraGoal,Math.min(1,dt*6.4));
-  center.set(playerPosition.x,playerPosition.y+1.7,playerPosition.z);
+  const origin=new THREE.Vector3(playerPosition.x,playerPosition.y+1.55,playerPosition.z);
+  // Prevent the camera from becoming buried inside nearby towers.
+  const vector=cameraGoal.clone().sub(origin);
+  const dist=vector.length();
+  const direction=vector.clone().divideScalar(Math.max(.01,dist));
+  let allowed=dist;
+  for(const b of buildings){
+    const minX=b.x-b.width/2-.28,maxX=b.x+b.width/2+.28;
+    const minZ=b.z-b.depth/2-.28,maxZ=b.z+b.depth/2+.28;
+    let tMin=0,tMax=allowed;
+    for(const axis of ['x','z']){
+      const min=axis==='x'?minX:minZ,max=axis==='x'?maxX:maxZ;
+      const o=origin[axis],d=direction[axis];
+      if(Math.abs(d)<.00001){if(o<min||o>max){tMin=Infinity;break;}continue;}
+      const t1=(min-o)/d,t2=(max-o)/d;
+      tMin=Math.max(tMin,Math.min(t1,t2));
+      tMax=Math.min(tMax,Math.max(t1,t2));
+      if(tMax<tMin)break;
+    }
+    if(tMin<tMax&&tMin>=0&&tMin<allowed){
+      const y=origin.y+direction.y*tMin;
+      if(y>=-.3&&y<b.height+.7)allowed=Math.max(1.4,tMin-.32);
+    }
+  }
+  if(allowed<dist)cameraGoal.copy(origin).addScaledVector(direction,allowed);
+  const smoothing=1-Math.exp(-dt*8.5);
+  if(camera.position.distanceToSquared(cameraGoal)>1900)camera.position.copy(cameraGoal);
+  camera.position.lerp(cameraGoal,smoothing);
+  if(cameraShake>0){
+    camera.position.x+=(Math.random()-.5)*cameraShake;
+    camera.position.y+=(Math.random()-.5)*cameraShake*.6;
+    cameraShake=Math.max(0,cameraShake-dt*1.4);
+  }
+  center.set(playerPosition.x,playerPosition.y+1.63,playerPosition.z);
   camera.lookAt(center);
 }
 function drawMinimap() {
@@ -769,6 +764,7 @@ function bindInput() {
     if(event.code==='Space')doJump();
     if(event.code==='KeyJ'||event.code==='KeyK')doAttack();
     if(event.code==='KeyG')doGlide();
+    if(event.code==='KeyL'||event.code==='ControlLeft')doDodge();
     if(event.code==='KeyF')doGrapple();
     if(event.code==='Escape'||event.code==='KeyP')state.paused?resumeGame():pauseGame();
   });
@@ -808,6 +804,7 @@ function bindInput() {
       else if(action==='glide')doGlide();
       else if(action==='grapple')doGrapple();
       else if(action==='attack')doAttack();
+      else if(action==='dodge')doDodge();
       button.classList.add('pressed');
     });
     for(const type of ['pointerup','pointercancel','pointerleave']){
@@ -824,7 +821,7 @@ function bindInput() {
     if(!cameraDrag||cameraDrag.id!==e.pointerId)return;
     const dx=e.clientX-cameraDrag.x,dy=e.clientY-cameraDrag.y;
     state.camYaw-=dx*(MOBILE?.0065:.004);
-    state.camPitch=clamp(state.camPitch+dy*(MOBILE?.0048:.0035),-.07,.83);
+    state.camPitch=clamp(state.camPitch+dy*(MOBILE?.0048:.0035),-.04,.62);
     cameraDrag.x=e.clientX;cameraDrag.y=e.clientY;
   });
   const clearDrag=e=>{if(cameraDrag?.id===e.pointerId)cameraDrag=null;};
@@ -841,6 +838,9 @@ function tick() {
     state.grappleCooldown=Math.max(0,state.grappleCooldown-dt);
     state.attackCooldown=Math.max(0,state.attackCooldown-dt);
     state.damageCooldown=Math.max(0,state.damageCooldown-dt);
+    state.dodgeTime=Math.max(0,state.dodgeTime-dt);
+    state.dodgeCooldown=Math.max(0,state.dodgeCooldown-dt);
+    state.comboTime=Math.max(0,state.comboTime-dt);
     updatePlayer(dt);
     updateEnemies(dt);
     updateIntel(dt);
