@@ -138,3 +138,75 @@ body{background:#030812}
  .mission-panel.expanded{top:199px!important}
  .minimap-container{right:max(17px,env(safe-area-inset-right))}
 }
+
+
+/* NOCTURNE 5.0 — action-campaign HUD */
+.boss-hud{position:absolute;top:85px;left:50%;transform:translateX(-50%);
+  width:min(410px,42vw);z-index:3;text-shadow:0 2px 9px #000;pointer-events:none}
+.boss-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;
+  color:#ffb2bb;font-size:10px;letter-spacing:.12em;font-weight:900}
+.boss-top strong{color:#ffe0e7;white-space:nowrap}
+.boss-meter{height:9px;background:#2c0b19c9;border:1px solid #ff799088;border-radius:16px;overflow:hidden}
+.boss-meter>div{height:100%;width:100%;background:linear-gradient(90deg,#ff435a,#ff9b79);
+  box-shadow:0 0 20px #f45880a8;transition:width .18s}
+.special-meter{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);
+  width:155px;padding:7px 11px;z-index:3;background:#041827b0;
+  border:1px solid #5ec6e752;border-radius:8px;text-align:center;pointer-events:none}
+.special-meter>span{font-size:9px;color:#90ecff;letter-spacing:.13em;font-weight:900}
+.special-meter>div{height:4px;margin:6px 0 4px;background:#0a3043;border-radius:8px;overflow:hidden}
+.special-meter>div i{display:block;height:100%;width:35%;background:linear-gradient(90deg,#19afe5,#a2ffdd);
+  box-shadow:0 0 12px #83ebff;transition:width .3s}
+.special-meter>b{font-size:8px;letter-spacing:.08em;color:#d2f9ff}
+.combo-display{position:absolute;top:77px;right:28%;z-index:3;display:flex;gap:7px;align-items:center;
+  pointer-events:none;text-shadow:0 1px 8px #000}
+.combo-display strong{font-size:28px;color:#eaf9ff;font-style:italic}
+.combo-display small{font-size:8px;letter-spacing:.13em;color:#68dcf9}
+.combat-flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 52%,#ff536e62);
+  z-index:1;transition:opacity .1s}.combat-flash.active{opacity:1}
+.combat-notice{position:absolute;left:50%;top:31%;transform:translateX(-50%);pointer-events:none}
+.career-summary,.career-result{font-size:11px!important;color:#8dcbe5!important;letter-spacing:.03em}
+.career-result{margin:10px 0 20px!important}
+.action-button.special{color:#e1faff;border:2px solid #60dffc;
+  background:radial-gradient(circle at 35% 30%,#226d85,#092339);
+  box-shadow:0 0 20px #56cfff55,inset 0 0 16px #60dfff20}
+.action-button.special:active{background:#1db3d9}
+@media(pointer:coarse) {
+ .touch-actions [data-action="special"]{grid-column:3;grid-row:1}
+ .boss-hud{width:34%;top:75px}
+ .boss-top{font-size:7px;letter-spacing:.035em}
+ .boss-top strong{font-size:8px}
+ .special-meter{bottom:max(11px,env(safe-area-inset-bottom));width:127px;padding:5px 8px}
+ .special-meter>span{font-size:8px}
+ .special-meter>b{font-size:7px}
+ .combo-display{top:64px;right:26%}
+ .combo-display strong{font-size:24px}
+ .combo-display small{font-size:7px}
+ .mission-panel.expanded{max-height:170px;overflow-y:auto}
+}
+@media(pointer:coarse) and (orientation:landscape) {
+ .boss-hud{top:69px;width:33%}
+ .boss-top{font-size:7px}
+ .boss-meter{height:7px}
+ .special-meter{bottom:12px;left:50%;max-width:128px}
+ .touch-actions{grid-template-columns:repeat(3,57px);grid-template-rows:repeat(2,57px)}
+ .touch-actions .action-button.special{width:60px;height:60px}
+ .combo-display{top:90px;left:48%;right:auto}
+ .toast{top:38%!important}
+}
+@media(pointer:coarse) and (orientation:portrait){
+ .touch-actions{grid-template-columns:repeat(3,53px);grid-template-rows:repeat(2,56px);gap:7px;right:10px}
+ .touch-actions [data-action="grapple"]{grid-column:1;grid-row:1}
+ .touch-actions [data-action="glide"]{grid-column:2;grid-row:1}
+ .touch-actions [data-action="special"]{grid-column:3;grid-row:1}
+ .touch-actions [data-action="dodge"]{grid-column:1;grid-row:2}
+ .touch-actions [data-action="jump"]{grid-column:2;grid-row:2}
+ .touch-actions [data-action="attack"]{grid-column:3;grid-row:2}
+ .touch-actions .action-button{font-size:10px}
+ .touch-actions .action-button.primary,.touch-actions .action-button.special{width:55px;height:55px}
+ .touch-actions .action-button span{font-size:21px}
+ .touch-actions .action-button small{font-size:7px}
+ .boss-hud{top:229px;left:50%;width:55%;max-width:210px}
+ .boss-top{font-size:7px}
+ .special-meter{left:50%;bottom:11px}
+ .combo-display{left:auto;right:20px;top:207px}
+}
