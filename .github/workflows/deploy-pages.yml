@@ -24,8 +24,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Validar JavaScript
         run: node --check src/game.js
+      - name: Verificar integridad y controles móviles
+        run: node tests/smoke.mjs
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Preparar archivos
         uses: actions/upload-pages-artifact@v3
         with:
