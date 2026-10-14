@@ -2,6 +2,7 @@
 // Procedural textures and reusable instancing: no external models or copyrighted assets.
 import * as THREE from 'three';
 import { installCityV4 } from './city-v4.js';
+import { createPremiumVehicles } from './vehicles.js';
 
 const random = (a, b = 0) => {
   const n = Math.sin(a * 127.1 + b * 311.7 + 18.19) * 43758.5453123;
@@ -325,46 +326,6 @@ function neonDistrict(scene,glow) {
   });
   return {glowing,lights};
 }
-function createVehicles(scene,glow) {
-  const cars=[],wheels=new THREE.CylinderGeometry(.47,.47,.23,12);
-  const materialTire=new THREE.MeshStandardMaterial({color:0x070d14,roughness:.9});
-  const glass=new THREE.MeshPhysicalMaterial({color:0x0b273b,metalness:.4,roughness:.18,clearcoat:1,clearcoatRoughness:.12});
-  const lights=new THREE.MeshBasicMaterial({color:0xf5efff});
-  const brake=new THREE.MeshBasicMaterial({color:0xff274d});
-  const values=[
-    [-5.1,-13.3,0,0x243e54],
-    [5.1,-32,Math.PI,0x444b5b],
-    [-5.1,26,0,0x4a3245],
-    [25.7,-5.2,Math.PI/2,0x254e56],
-    [-34,5.2,Math.PI/2,0x463f56],
-    [44.4,5.3,-Math.PI/2,0x354c5f],
-    [-46,-5.3,Math.PI,0x536072]
-  ];
-  for(const [x,z,angle,color] of values){
-    const root=new THREE.Group();root.position.set(x,.27,z);root.rotation.y=angle;scene.add(root);
-    const paint=new THREE.MeshPhysicalMaterial({color,metalness:.68,roughness:.24,clearcoat:1,clearcoatRoughness:.11});
-    box(root,paint,[0,.53,0],[2.03,.72,4.18]);
-    box(root,paint,[0,1.18,-.18],[1.72,.66,2.4]);
-    box(root,glass,[0,1.2,-1.39],[1.5,.5,.06]);
-    box(root,glass,[0,1.2,1.02],[1.5,.5,.06]);
-    for(const w of [-.98,.98])for(const d of [-1.36,1.35]){
-      const wheel=new THREE.Mesh(wheels,materialTire);wheel.rotation.z=Math.PI/2;
-      wheel.position.set(w,.29,d);root.add(wheel);
-      const hub=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.245,8),
-        new THREE.MeshStandardMaterial({color:0x81909d,metalness:.9,roughness:.25}));
-      hub.rotation.z=Math.PI/2;hub.position.copy(wheel.position);root.add(hub);
-    }
-    for(const side of [-.67,.67]){
-      box(root,lights,[side,.58,-2.105],[.42,.18,.05]);
-      box(root,brake,[side,.58,2.105],[.36,.15,.05]);
-    }
-    const shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.3,4.7),basic(0x00030a,.4));
-    shadow.rotation.x=-Math.PI/2;shadow.position.y=-.22;root.add(shadow);
-    cars.push(root);
-    createGlow(scene,glow,x,.7,z-2.25,2.25,0xc8eaff,.45);
-  }
-  return cars;
-}
 function dressCity(scene,glow) {
   const steel=new THREE.MeshStandardMaterial({color:0x2b4351,roughness:.47,metalness:.65});
   const teal=new THREE.MeshBasicMaterial({color:0x68f0ef});
@@ -444,7 +405,7 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
   addArchitecture(scene,buildings);
   installCityV4({scene,buildings,mobile});
   const neon=neonDistrict(scene,glow);
-  createVehicles(scene,glow);
+  createPremiumVehicles(scene,glow);
   dressCity(scene,glow);
   const heroAura=[]; // Armadura esculpida en hero.js; no superponer placas duplicadas.
   const lampGlow=[];
