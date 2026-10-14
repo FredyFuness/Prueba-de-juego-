@@ -639,30 +639,54 @@ function updatePlayer(dt) {
     grappleLine.geometry.computeBoundingSphere();
   }
 }
-function updateEnemies(dt) {
-  for (const e of enemies) {
-    if (!e.alive) continue;
-    const dx = playerPosition.x - e.root.position.x;
-    const dz = playerPosition.z - e.root.position.z;
-    const dist = Math.hypot(dx, dz);
-    e.cd -= dt;
-    e.root.userData.movingSpeed=(dist<22&&dist>2.0&&playerPosition.y<3)?2.4:0;
-    e.hit = Math.max(0, e.hit-dt);
-    e.ring.material.opacity = e.hit > 0 ? 1 : .4 + Math.sin(state.time * 3 + e.phase) * .15;
-    e.ring.position.set(e.root.position.x, .1, e.root.position.z);
-    if (dist < 22 && dist > 2.0 && playerPosition.y < 3) {
-      const step = dt * (e.hit > 0 ? 0 : 2.4);
-      const nx = e.root.position.x + (dx / dist) * step;
-      const nz = e.root.position.z + (dz / dist) * step;
-      if (!isBlocked(nx, e.root.position.z, 0)) e.root.position.x = nx;
-      if (!isBlocked(e.root.position.x, nz, 0)) e.root.position.z = nz;
+function updateEnemies(dt){
+  for(const e of enemies){
+    if(!e.alive)continue;
+    const dx=playerPosition.x-e.root.position.x,dz=playerPosition.z-e.root.position.z;
+    const dist=Math.hypot(dx,dz);
+    e.cd-=dt;
+    e.stun=Math.max(0,e.stun-dt);
+    e.hit=Math.max(0,e.hit-dt);
+    const speed=e.type==='heavy'?1.35:e.type==='ranger'?2.0:3.2;
+    const stopDistance=e.type==='ranger'?9:2.15;
+    const chasing=dist<23&&dist>stopDistance&&playerPosition.y<3&&e.stun<=0;
+    e.root.userData.movingSpeed=chasing?speed:0;
+    if(chasing){
+      const step=dt*speed;
+      const nx=e.root.position.x+dx/Math.max(.01,dist)*step;
+      const nz=e.root.position.z+dz/Math.max(.01,dist)*step;
+      if(!isBlocked(nx,e.root.position.z,0))e.root.position.x=nx;
+      if(!isBlocked(e.root.position.x,nz,0))e.root.position.z=nz;
     }
-    if (dist < 2.1 && playerPosition.y < 3.1 && e.cd <= 0 && state.dodgeTime<=0) {
-      e.cd = 2.1;
-      hurt(12);
+    if(e.type==='ranger'&&dist<27&&dist>5&&playerPosition.y<3.5&&e.stun<=0){
+      e.shootCooldown-=dt;
+      if(e.shootCooldown<=0){
+        e.shootCooldown=3.25+e.phase*.10;
+        encounter?.shoot({x:e.root.position.x,y:1.65,z:e.root.position.z},
+          {x:playerPosition.x,y:playerPosition.y+1.25,z:playerPosition.z},
+          {speed:8.7,damage:8,tint:0xd16fff});
+        e.ring.material.opacity=1;
+      }
     }
-    e.root.rotation.y = Math.atan2(-dx, -dz);
-    e.root.position.y = Math.sin(state.time*2.8+e.phase)*.045;
+    if(e.stun>0)e.attackWindup=0;
+    else if(e.attackWindup>0){
+      e.attackWindup-=dt;
+      if(e.attackWindup<=0){
+        if(dist<2.65&&playerPosition.y<3&&state.dodgeTime<=0)hurt(e.type==='heavy'?19:10);
+        e.cd=e.type==='heavy'?3.1:2.2;
+      }
+    }else if(dist<2.25&&playerPosition.y<3&&e.cd<=0){
+      e.attackWindup=e.type==='heavy'?1.0:.62;
+      e.ring.material.opacity=1;
+    }
+    e.ring.material.opacity=e.attackWindup>0
+      ?(.65+Math.sin(state.time*25)*.28)
+      :e.hit>0?1:.40+Math.sin(state.time*2.8+e.phase)*.13;
+    const ringScale=e.attackWindup>0?1.24:1;
+    e.ring.scale.setScalar(ringScale);
+    e.ring.position.set(e.root.position.x,.10,e.root.position.z);
+    e.root.rotation.y=Math.atan2(-dx,-dz);
+    e.root.position.y=Math.sin(state.time*2.8+e.phase)*.025;
   }
 }
 function updateIntel(dt) {
@@ -792,17 +816,24 @@ function drawMinimap() {
   ctx.strokeStyle='#75daef66';ctx.lineWidth=2;
   ctx.beginPath();ctx.arc(mid,mid,mid-3,0,TAU);ctx.stroke();
 }
-function updateMissionHint() {
-  const objective = intelItems.filter(e=>!e.taken);
-  if (objective.length) {
-    objective.sort((a,b)=>Math.hypot(a.x-playerPosition.x,a.z-playerPosition.z)-Math.hypot(b.x-playerPosition.x,b.z-playerPosition.z));
-    const nearest=objective[0];
-    ui.hint.textContent = 'Núcleo más cercano: ' + Math.ceil(Math.hypot(nearest.x-playerPosition.x,nearest.z-playerPosition.z)) + ' m';
-  } else {
-    ui.hint.textContent='Elimina a los hostiles restantes para asegurar la zona.';
+function updateMissionHint(){
+  if(state.act===2){
+    const b=encounter?.boss;
+    const distance=b?Math.ceil(Math.hypot(b.group.position.x-playerPosition.x,b.group.position.z-playerPosition.z)):0;
+    ui.hint.textContent='CENTINELA · '+distance+' m. Evita las ondas y usa EMP.';
+    const toggle=$('mission-toggle');
+    if(toggle)toggle.firstElementChild.textContent='JEFE FINAL';
+  }else{
+    const outstanding=intelItems.filter(x=>!x.taken);
+    outstanding.sort((a,b)=>Math.hypot(a.x-playerPosition.x,a.z-playerPosition.z)-Math.hypot(b.x-playerPosition.x,b.z-playerPosition.z));
+    ui.hint.textContent=outstanding.length
+      ?'Archivo más cercano: '+Math.ceil(Math.hypot(outstanding[0].x-playerPosition.x,outstanding[0].z-playerPosition.z))+' m'
+      :'Neutraliza a los hostiles restantes.';
+    const toggle=$('mission-toggle');
+    if(toggle)toggle.firstElementChild.textContent='OBJETIVOS';
   }
   const near=targetBuilding();
-  ui.target.classList.toggle('hidden', !(near && state.grappleCooldown<=0 && !state.grapple && state.active && !state.paused));
+  ui.target.classList.toggle('hidden',!(near&&state.grappleCooldown<=0&&!state.grapple&&state.active&&!state.paused));
 }
 function resize() {
   if (!renderer) return;
