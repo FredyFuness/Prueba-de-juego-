@@ -32,5 +32,23 @@ assert(sw.includes('THREE_CDN'), 'Falta estrategia de caché para motor 3D');
 assert(manifest.display === 'standalone', 'La PWA no está configurada como app');
 assert(manifest.start_url === './', 'La PWA no usa ruta relativa de GitHub Pages');
 assert(/src="\.\/src\/game\.js"/.test(html), 'No se carga el módulo del juego');
+assert(existsSync(join(root, 'src/premium-graphics.js')), 'Falta motor gráfico premium');
+assert(existsSync(join(root, 'assets/premium-ui.css')), 'Falta hoja de estilos cinematográficos');
+const premium = read('src/premium-graphics.js');
+assert(html.includes('assets/premium-ui.css'), 'La interfaz no carga los estilos premium');
+assert(js.includes("from './premium-graphics.js'"), 'El motor no importa el módulo premium');
+assert(js.includes('installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE})'), 'El motor premium no se inicializa');
+assert(js.includes('premiumGraphics.update('), 'La escena cinematográfica no se anima');
+assert(html.includes('EDICIÓN CINEMATOGRÁFICA'), 'Falta identificación de nueva edición');
+for (const mode of ['eco', 'balanced', 'cinematic']) {
+  assert(html.includes('data-quality="' + mode + '"'), 'Falta control gráfico: '+mode);
+}
+assert(premium.includes('createAtmosphere('), 'Falta cielo nocturno procedimental');
+assert(premium.includes('makeWetStreets('), 'Faltan materiales de asfalto mojado');
+assert(premium.includes('neonDistrict('), 'Falta iluminación urbana');
+assert(premium.includes('createVehicles('), 'Faltan vehículos urbanos');
+assert(premium.includes('addHeroArmor('), 'Falta armadura detallada');
+assert(sw.includes('premium-graphics.js'), 'La caché no incluye el motor premium');
+assert(sw.includes('premium-ui.css'), 'La caché no incluye los estilos premium');
 assert(html.includes('id="start-button"'), 'No hay forma de iniciar una partida');
 console.log('✓ Smoke test: DOM, controles móviles, recursos, PWA y motor 3D OK');
