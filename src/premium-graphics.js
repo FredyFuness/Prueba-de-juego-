@@ -132,7 +132,7 @@ function batch(scene, objects, geometry, mat) {
   return group;
 }
 function createAtmosphere(scene) {
-  const dome=new THREE.Mesh(new THREE.SphereGeometry(300, 24, 14),
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(130, 24, 14),
     new THREE.ShaderMaterial({
       side:THREE.BackSide,depthWrite:false,fog:false,
       uniforms:{top:{value:new THREE.Color(0x030815)},horizon:{value:new THREE.Color(0x22394e)}},
@@ -144,7 +144,7 @@ function createAtmosphere(scene) {
   for(let i=0;i<560;i++){
     const theta=random(i,2)*Math.PI*2;
     const phi=.17+random(i,9)*1.21;
-    const radius=180;
+    const radius=122;
     starPositions.push(radius*Math.sin(phi)*Math.cos(theta),radius*Math.cos(phi),radius*Math.sin(phi)*Math.sin(theta));
   }
   const starsGeo=new THREE.BufferGeometry();
@@ -156,7 +156,7 @@ function createAtmosphere(scene) {
   const hazeMat=basic(0x326280,.033,true);
   const haze=new THREE.Mesh(new THREE.PlaneGeometry(178,178),hazeMat);
   haze.rotation.x=-Math.PI/2;haze.position.y=.18;scene.add(haze);
-  return {stars,haze};
+  return {dome,stars,haze};
 }
 function makeWetStreets(scene) {
   const asphalt=makeAsphaltTexture();
@@ -438,7 +438,7 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
   renderer.toneMappingExposure=1.23;
   scene.fog=new THREE.FogExp2(0x0d2030,mobile?.014:.0105);
   const glow=radialTexture();
-  createAtmosphere(scene);
+  const sky=createAtmosphere(scene);
   makeWetStreets(scene);
   addArchitecture(scene,buildings);
   const neon=neonDistrict(scene,glow);
@@ -467,7 +467,6 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
     s.scale.set(22+random(i,2)*28,3+random(i,4)*6,1);
     scene.add(s);clouds.push(s);
   }
-  const direction=new THREE.Vector3();
   let quality=mobile?'balanced':'cinematic';
   function setQuality(level) {
     if(!['eco','balanced','cinematic'].includes(level))return quality;
@@ -484,6 +483,8 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
   }
   setQuality(quality);
   function update(dt,time,heroPosition,gliding=false) {
+    sky.dome.position.set(camera.position.x, 0, camera.position.z);
+    sky.stars.position.set(camera.position.x, 0, camera.position.z);
     // Subtle light flicker and drifting clouds add atmosphere, without runtime geometry creation.
     neon.lights.forEach((light,i)=>{
       light.intensity=(i<2?5.4:3.8)*(0.91+Math.sin(time*3.5+i*2.7)*.07);
