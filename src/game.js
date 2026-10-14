@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { installPremiumGraphics } from './premium-graphics.js';
 import { makeHero, makeRaider } from './hero.js';
+import { createActorSystem } from './actors.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('game-canvas');
@@ -25,7 +26,7 @@ const state = {
 const moveInput = { x: 0, z: 0 };
 const keys = new Set();
 let renderer, scene, camera, player, cape, leftArm, rightArm, leftLeg, rightLeg;
-let heroRig=null,cameraShake=0,attackCombo=0;
+let heroRig=null,cameraShake=0,attackCombo=0,actorSystem=null;
 let premiumGraphics=null;
 let qualityAuto=true, qualityTimer=0, qualityFrames=0, slowIntervals=0;
 let rain, rainPositions, grappleLine, grapplePositions, playerLight;
@@ -117,7 +118,9 @@ function setupScene() {
   createIntel();
   createRain();
   createGrapple();
+  actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify});
   premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
+  actorSystem.start().catch(error=>console.warn('Optional 3D asset could not load',error));
   window.addEventListener('resize', resize);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state.active && !state.paused && !state.finished) pauseGame();
@@ -474,6 +477,7 @@ function resetGame() {
   for (const effect of effects) scene.remove(effect.obj);
   enemies=[]; intelItems=[]; effects=[];
   createEnemies(); createIntel();
+  actorSystem?.refresh();
   grappleLine.visible=false;
   player.position.copy(playerPosition);
   player.rotation.y=0;
@@ -554,7 +558,7 @@ function updatePlayer(dt) {
   player.position.z=playerPosition.z;
   if(state.grapple)player.position.y=playerPosition.y;
   const movingSpeed=state.grapple?15:state.movingSpeed;
-  heroRig.animate(dt,movingSpeed,state.glide,state.attackCooldown>.1,state.dodgeTime>0);
+  if(!actorSystem?.loaded)heroRig.animate(dt,movingSpeed,state.glide,state.attackCooldown>.1,state.dodgeTime>0);
   if (state.grapple) {
     const pos = grappleLine.geometry.attributes.position;
     pos.setXYZ(0, playerPosition.x, playerPosition.y + 1.9, playerPosition.z);
@@ -570,6 +574,7 @@ function updateEnemies(dt) {
     const dz = playerPosition.z - e.root.position.z;
     const dist = Math.hypot(dx, dz);
     e.cd -= dt;
+    e.root.userData.movingSpeed=(dist<22&&dist>2.0&&playerPosition.y<3)?2.4:0;
     e.hit = Math.max(0, e.hit-dt);
     e.ring.material.opacity = e.hit > 0 ? 1 : .4 + Math.sin(state.time * 3 + e.phase) * .15;
     e.ring.position.set(e.root.position.x, .1, e.root.position.z);
@@ -876,6 +881,7 @@ function tick() {
       }
     }
   }
+  actorSystem?.update(dt,{speed:state.movingSpeed,gliding:state.glide,attacking:state.attackCooldown>0});
   renderer.render(scene,camera);
 }
 try {
