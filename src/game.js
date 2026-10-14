@@ -88,12 +88,14 @@ function updateHUD() {
   ui.score.textContent = String(state.score).padStart(4, '0');
   ui.intel.textContent = state.data + ' / 3';
   ui.enemies.textContent = state.defeated + ' / 5';
+  const quick=$('quick-progress');
+  if(quick)quick.textContent=state.data+'/3 ◈ '+state.defeated+'/5';
 }
 function setupScene() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color('#07111e');
   scene.fog = new THREE.FogExp2(0x07111e, MOBILE ? 0.015 : 0.011);
-  camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 160);
+  camera = new THREE.PerspectiveCamera(MOBILE?58:62, innerWidth / innerHeight, 0.1, 160);
   renderer = new THREE.WebGLRenderer({ canvas, antialias: !MOBILE, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, MOBILE ? 1.5 : 2));
   renderer.setSize(innerWidth, innerHeight, false);
@@ -495,6 +497,8 @@ function resetGame() {
   player.rotation.y=0;
   ui.finish.classList.add('hidden'); ui.pause.classList.add('hidden');
   ui.start.classList.add('hidden'); ui.hud.classList.remove('hidden');
+  $('mission-panel')?.classList.remove('expanded');
+  $('mission-toggle')?.setAttribute('aria-expanded','false');
   state.active=true; state.paused=false;
   updateHUD();
   notify('MISIÓN INICIADA · RECUPERA LOS 3 NÚCLEOS', 3.7);
@@ -654,10 +658,10 @@ function updateCamera(dt) {
   // Over-the-shoulder framing: closer camera, visible torso, cinematic headroom.
   const yaw=state.camYaw;
   const movingBoost=Math.min(.75,state.movingSpeed*.08);
-  const distance=(MOBILE?6.25:6.55)+movingBoost+(state.glide?2.0:0);
+  const distance=(MOBILE?5.45:6.3)+movingBoost+(state.glide?2.0:0);
   const pitch=state.camPitch;
   const cp=Math.cos(pitch);
-  const shoulder=state.glide?0:0.48;
+  const shoulder=state.glide?0:(MOBILE?.40:.48);
   cameraGoal.set(
     playerPosition.x+Math.sin(yaw)*distance*cp +Math.cos(yaw)*shoulder,
     playerPosition.y+1.65+Math.sin(pitch)*distance,
@@ -764,6 +768,10 @@ function bindInput() {
   $('resume-button').addEventListener('click',resumeGame);
   $('restart-button').addEventListener('click',resetGame);
   $('replay-button').addEventListener('click',resetGame);
+  $('mission-toggle')?.addEventListener('click',()=>{
+    const expanded=$('mission-panel').classList.toggle('expanded');
+    $('mission-toggle').setAttribute('aria-expanded',String(expanded));
+  });
   for(const button of document.querySelectorAll('[data-quality]')){
     button.addEventListener('click',()=>{
       if(!premiumGraphics)return;
