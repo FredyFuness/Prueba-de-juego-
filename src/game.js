@@ -883,6 +883,8 @@ try {
   tick();
 } catch(error) {
   console.error('NOCTURNE could not initialize:',error);
+  window.__nocturneStartupError=error?.stack||String(error);
+  console.error('NOCTURNE error stack:',window.__nocturneStartupError);
   const el=$('load-error');
   if(el){el.textContent='No se pudo iniciar el motor 3D. Prueba con Chrome o Safari actualizado y comprueba tu conexión a internet.';el.classList.remove('hidden');}
 }
