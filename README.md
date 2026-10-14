@@ -1,106 +1,102 @@
-# NOCTURNE: Ciudad de Sombras 🌃
+# NOCTURNE 4.0 — Ciudad de Sombras
 
-**Un prototipo jugable de aventura y acción 3D para teléfonos y computadoras.**
+Juego **original de aventura y acción 3D**, en tercera persona, publicado para navegador de computadora y teléfono. Su atmósfera es de thriller urbano nocturno; NO se utilizan imágenes, personajes ni música de Batman: Arkham Knight.
 
-Un héroe original recorre una ciudad nocturna, recupera archivos tecnológicos, se enfrenta a hostiles, salta, planea y utiliza un gancho para alcanzar las azoteas. Está inspirado en el *género* de aventuras de superhéroes, pero no utiliza personajes, imágenes, música ni recursos de Batman: Arkham Knight.
-
-## ▶️ Jugar
-
-El juego se publica desde la rama **main**, carpeta **/ (root)**, mediante GitHub Pages en:
+## 🎮 Jugar ahora
 
 **https://fredyfuness.github.io/Prueba-de-juego-/**
 
-La configuración actual es **Settings → Pages → Build and deployment → Source: Deploy from a branch → main → / (root)**. GitHub publica los cambios de `main` automáticamente. Si la página aún no carga, espera a que termine el proceso **pages build and deployment** en la pestaña Actions.
+Publicado por GitHub Pages desde `main` (raíz del repositorio). En iPhone, abre el enlace en Safari y gira el teléfono horizontalmente. También puedes elegir «Añadir a pantalla de inicio».
 
-### En el teléfono 📱
+## Reconstrucción visual 4.0
 
-- **Joystick izquierdo:** caminar por la ciudad.
-- **Deslizar sobre el escenario:** girar la cámara.
-- **ATAQUE:** golpear al enemigo más cercano.\n- **ESQUIVAR:** maniobra corta para evitar ataques.
-- **SALTAR:** alcanzar alturas e iniciar un salto.
-- **PLANEAR:** activar o desactivar el planeo mientras estás en el aire.
-- **GANCHO:** subir rápidamente hasta la azotea de un edificio cercano en la dirección de la cámara.
-- **Pausa (Ⅱ):** mostrar el menú.
-
-Se recomienda Safari actualizado en iPhone o Chrome actualizado en Android. Puedes añadir la página a la pantalla de inicio desde el menú del navegador.
-
-### En computadora 🖥️
-
-| Acción | Controles |
+| Fase | Implementación |
 |---|---|
-| Moverse | W / A / S / D o flechas |
-| Correr | Shift mientras caminas |
-| Girar cámara | Arrastrar con mouse |
+| **1. Personajes** | Humanoide real 3D `glTF/GLB` con esqueleto, animaciones y materiales PBR; guardado localmente. Enemigos con la misma estructura animada y materiales diferenciados. Respaldo procedural si no puede cargarse. |
+| **2. Ciudad** | Atlas de texturas generado proceduralmente, fachadas con ventanas, marcos y piedra; cornisas, balcones, escaleras externas, calles comerciales, maquinaria y siluetas de tejados variadas. |
+| **3. Atmósfera** | Lluvia 3D, cielo nocturno, neones, charcos estilizados, iluminación cálida, bruma, coches, vegetación y detalles urbanos. |
+| **4. Jugabilidad** | Cámara sobre el hombro con suavizado y prevención básica de colisiones, ataque, esquiva, gancho, salto, planeo, vida, enemigos y tres núcleos de datos. |
+| **5. Teléfono y publicación** | Joystick y cinco botones táctiles, estilos horizontal/vertical, modos Fluidez/Equilibrado/Cinemático, PWA con caché del modelo 3D, pruebas automáticas y GitHub Pages. |
+
+La fase 1 utiliza una malla humana animada REAL y un recurso GLB local, no un humanoide construido únicamente con cubos. Es un modelo de muestra rediseñado con materiales de NOCTURNE, **no un modelo cinematográfico AAA de un superhéroe**. Las fachadas son detalladas, pero la ciudad sigue siendo una demostración compacta y no un mapa abierto de gran escala. Los reflejos y efectos atmosféricos son aproximaciones aptas para móvil, no ray tracing.
+
+### Controles en teléfono
+
+- **Joystick izquierdo**: caminar y controlar la dirección.
+- **Deslizar sobre la pantalla**: mover la cámara en tercera persona.
+- **ATAQUE**: golpear a un enemigo.
+- **ESQUIVAR**: desplazamiento evasivo con breve protección.
+- **SALTAR**: saltar o iniciar planeo desde una altura.
+- **PLANEAR**: activar la capa al estar en el aire.
+- **GANCHO**: desplazarse a una azotea cercana.
+- **Pausa (Ⅱ)**: reanudar, reiniciar o cambiar calidad gráfica.
+
+### Controles en computadora
+
+| Acción | Control |
+|---|---|
+| Caminar | W, A, S, D o flechas |
+| Correr | Shift |
+| Cámara | Arrastrar mouse |
+| Atacar | J o K |
+| Esquivar | L o Control izquierdo |
 | Saltar | Espacio |
-| Atacar | J o K |\n| Esquivar | L o Control |
 | Planear | G |
 | Gancho | F |
 | Pausa | P o Escape |
 
-## 🎯 Misión
+### Misión inicial
 
-- Recupera **3 núcleos de datos** (cristales luminosos celestes).
-- Neutraliza **5 hostiles** (enemigos rojos); requieren tres golpes.
-- Evita perder toda la integridad.
-- Completa ambos objetivos para asegurar el distrito.
+Recupera **3 núcleos de datos** luminosos y neutraliza **5 hostiles** sin perder toda tu integridad. El radar muestra las ubicaciones. Puedes reiniciar para volver a jugar.
 
-## ✨ Edición definitiva 3.0 — acción y estilo cinematográfico
+## Tecnologías
 
-Esta actualización renueva el aspecto gráfico del prototipo, manteniendo las mecánicas y controles existentes:
+- **Three.js** con `GLTFLoader` y `SkeletonUtils`, WebGL y animación de mallas con esqueleto.
+- **HTML, CSS y JavaScript ES Modules**. Sin compilación obligatoria.
+- **CanvasTexture + PBR**, `InstancedMesh`, cielo procedural y efectos.
+- **Service Worker / Web Manifest** para instalar como aplicación web.
+- **GitHub Actions** para revisar código, probar el inicio en navegador y publicar mediante GitHub Pages.
 
-- **Pavimento húmedo:** textura de asfalto generada proceduralmente, charcos, trazos luminosos y materiales físicamente basados (PBR).
-- **Edificios detallados:** fachadas con marcos, cornisas, estructura metálica, puertas, persianas, azoteas y elementos industriales.
-- **Ciudad viva:** vehículos estacionados originales, paradas urbanas, semáforos, pasos peatonales, bolardos y mobiliario callejero.
-- **Iluminación nocturna:** letreros de neón ficticios, reflejos estilizados, luces cálidas, bruma urbana, estrellas y nubes.
-- **Personaje original completamente rediseñado:** mallas curvas, armadura de varias piezas, casco con visor, capa de tejido procedural con animación en tiempo real, brazos y piernas articulados.\n- **Cámara cinematográfica:** plano sobre el hombro, seguimiento suave, mayor cercanía al héroe y protección básica para evitar que atraviese edificios.\n- **Combate mejorado:** enemigos con mallas más suaves, animaciones de impacto, esquiva con breve invulnerabilidad, sacudida de cámara y efectos visuales.\n- **Lluvia visible:** trazos tridimensionales en movimiento en lugar de partículas puntuales.
-- **Tres calidades en el menú de pausa:** **Fluidez**, **Equilibrado** y **Cinemático**. El teléfono inicia en Equilibrado y puede cambiar automáticamente a Fluidez ante una caída sostenida de FPS.
-- **Optimización:** geometría repetida con `InstancedMesh`, límites de resolución según pantalla, texturas generadas localmente y materiales reutilizados.
-- **PWA:** los archivos nuevos entran en el caché para futuras visitas desde el teléfono.
+### Ejecutarlo localmente
 
-**Importante:** es una mejora visual sustancial de un juego web ligero; los reflejos en el piso son efectos aproximados, no trazado de rayos. Los modelos de personajes siguen siendo geométricos, todavía no hay mocap ni los recursos de un juego AAA. Si el teléfono se calienta, elige **Fluidez** en el menú de pausa.
-
-## 🛠️ Tecnologías
-
-- **JavaScript moderno** (sin compilación ni instalación de Node para jugar)
-- **Three.js** mediante CDN para renderizado 3D/WebGL
-- **HTML + CSS** responsive, optimizados para pantallas táctiles
-- **Service Worker + Web Manifest** para instalación tipo PWA
-- **GitHub Pages** para hosting estático gratuito
-- **Web Audio** para efectos sonoros sintetizados
-
-El proyecto está diseñado sin motores pesados ni descargas de grandes assets. La primera conexión necesita internet para cargar Three.js; el navegador puede almacenar los recursos del juego para posteriores visitas.
-
-## Estructura
-
-```text
-Prueba-de-juego-/
-├── .github/workflows/tests.yml\n├── tests/smoke.mjs
-├── assets/
-│   ├── icon.svg
-│   └── premium-ui.css
-├── src/
-│   ├── game.js
-│   └── premium-graphics.js
-├── index.html
-├── styles.css
-├── manifest.webmanifest
-├── sw.js
-├── .nojekyll
-└── README.md
-```
-
-## Ejecutar en Visual Studio Code
-
-Abre el repositorio en VS Code y usa una extensión como **Live Server**, o desde la terminal:
+Desde la raíz del repositorio:
 
 ```bash
 python -m http.server 8000
 ```
 
-Visita http://localhost:8000/ desde la computadora. Para probarlo en el teléfono dentro de la misma red Wi-Fi, utiliza la dirección IP local de tu computadora y un servidor que escuche en `0.0.0.0`. En iOS, algunos permisos de PWA necesitan un origen HTTPS, por eso GitHub Pages es la opción recomendada.
+Abre `http://localhost:8000/` desde una computadora. No abras `index.html` directamente como archivo: el motor necesita un servidor HTTP para cargar módulos y modelos 3D.
 
-> NOCTURNE 2.0 sigue siendo un **prototipo independiente** de aventura en tercera persona y no un juego AAA completo. Próximos hitos: personajes GLTF originales con rig y animaciones, materiales PBR detallados, combate con combos/evasivas, más misiones, sonidos ambientales y progreso persistente.
+### Estructura
 
-### Créditos
+```text
+Prueba-de-juego-/
+├── .github/workflows/
+│   ├── tests.yml
+│   └── vendor-characters.yml
+├── assets/
+│   ├── icon.svg
+│   ├── premium-ui.css
+│   └── models/
+│       ├── cesium-man.glb
+│       └── README.md
+├── src/
+│   ├── game.js
+│   ├── actors.js
+│   ├── hero.js
+│   ├── premium-graphics.js
+│   └── city-v4.js
+├── tests/
+│   ├── smoke.mjs
+│   └── browser.cjs
+├── index.html
+├── styles.css
+├── sw.js
+└── manifest.webmanifest
+```
 
-Proyecto creado para el repositorio **FredyFuness/Prueba-de-juego-**. Personajes, ciudad y objetos son originales y se generan mediante geometrías y materiales procedurales.
+## Licencias y atribución
+
+El modelo base animado **CesiumMan** es © **Cesium (2017)**, distribuido por Khronos glTF Sample Assets bajo **CC BY 4.0**. Adaptado en tiempo de ejecución mediante escala, rotación, materiales, y uso como personajes del juego. Las texturas y marcas originales no se muestran: se aplican materiales propios de NOCTURNE. Consulta [avisos del modelo](./assets/models/README.md) y [fuente original](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CesiumMan). La atribución debe conservarse en redistribuciones.
+
+Los elementos urbanos, superficies y detalles procedurales originales están implementados en este repositorio.
