@@ -17,6 +17,11 @@ const executable='/usr/bin/google-chrome';
     await page.waitForSelector('#start-button');
     await page.waitForFunction(()=>document.querySelector('canvas#game-canvas')?.width>0,{timeout:25000});
     assert(await page.$('#start-button'),'Start button not found');
+    await page.waitForFunction(()=>window.__nocturneModelStatus!==undefined,{timeout:30000});
+    const actorStatus=await page.evaluate(()=>window.__nocturneModelStatus);
+    console.log('3D actor loading:',JSON.stringify(actorStatus));
+    assert(actorStatus.loaded===true,'Skinned glTF character did not load: '+JSON.stringify(actorStatus));
+    assert(actorStatus.characters===6,'Expected player + five enemies to use animated mesh: '+JSON.stringify(actorStatus));
     await page.screenshot({path:'/tmp/nocturne-intro.png'});
     await page.click('#start-button');
     await new Promise(resolve=>setTimeout(resolve,1000));
@@ -46,6 +51,19 @@ const executable='/usr/bin/google-chrome';
     });
     console.log('Browser gameplay check:',JSON.stringify(state));
     assert(Number(state.health)>0,'Character HUD health missing');
+    const overlap=(a,b)=>Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x))
+       * Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));
+    assert(overlap(state.mission,state.joystick)<25,'Mobile HUD is overlapping left joystick');
+    assert(overlap(state.controls,state.mission)<25,'Mobile HUD is overlapping right buttons');
+    await page.setViewport({width:390,height:844,deviceScaleFactor:2,isMobile:true,hasTouch:true});
+    await new Promise(resolve=>setTimeout(resolve,800));
+    await page.screenshot({path:'/tmp/nocturne-portrait.png'});
+    const phone=await page.evaluate(()=>{
+      const controls=document.querySelector('.touch-actions').getBoundingClientRect();
+      const joystick=document.querySelector('#joystick').getBoundingClientRect();
+      return {controls:{x:controls.x,w:controls.width},joystick:{x:joystick.x,w:joystick.width}};
+    });
+    assert(phone.joystick.x+phone.joystick.w<phone.controls.x,'Portrait controls overlap');
     assert(errors.length===0,'Uncaught browser exceptions: '+errors.join('; '));
     console.log('✓ Headless Chrome: render, title screen, game start, mobile controls and HUD OK');
   }finally{await browser.close();}
