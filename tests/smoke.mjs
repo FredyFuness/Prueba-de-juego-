@@ -39,7 +39,7 @@ assert(html.includes('assets/premium-ui.css'), 'La interfaz no carga los estilos
 assert(js.includes("from './premium-graphics.js'"), 'El motor no importa el módulo premium');
 assert(js.includes('installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE})'), 'El motor premium no se inicializa');
 assert(js.includes('premiumGraphics.update('), 'La escena cinematográfica no se anima');
-assert(html.includes('EDICIÓN CINEMATOGRÁFICA'), 'Falta identificación de nueva edición');
+assert(html.includes('EDICIÓN DEFINITIVA'), 'Falta identificación de nueva edición');
 for (const mode of ['eco', 'balanced', 'cinematic']) {
   assert(html.includes('data-quality="' + mode + '"'), 'Falta control gráfico: '+mode);
 }
@@ -49,6 +49,14 @@ assert(premium.includes('neonDistrict('), 'Falta iluminación urbana');
 assert(premium.includes('createVehicles('), 'Faltan vehículos urbanos');
 assert(premium.includes('addHeroArmor('), 'Falta armadura detallada');
 assert(sw.includes('premium-graphics.js'), 'La caché no incluye el motor premium');
+assert(sw.includes('hero.js'), 'La caché no incluye el personaje 3D original');
+assert(existsSync(join(root,'src/hero.js')), 'Falta el personaje 3D premium');
+assert(js.includes("from './hero.js'"), 'Falta carga del personaje 3D premium');
+assert(js.includes('heroRig.animate('), 'Faltan animaciones del personaje');
+assert(js.includes('function doDodge()'), 'Falta sistema de esquiva');
+assert(html.includes('data-action="dodge"'), 'Falta botón móvil para esquivar');
+assert(js.includes('new THREE.LineSegments'), 'Faltan partículas de lluvia realistas');
+assert(js.includes('function updateCamera(dt)'), 'Falta cámara cinematográfica');
 assert(sw.includes('premium-ui.css'), 'La caché no incluye los estilos premium');
 assert(html.includes('id="start-button"'), 'No hay forma de iniciar una partida');
 console.log('✓ Smoke test: DOM, controles móviles, recursos, PWA y motor 3D OK');
