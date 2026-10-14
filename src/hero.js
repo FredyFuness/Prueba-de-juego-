@@ -2,6 +2,7 @@ import * as THREE from 'three';
 const polished=new THREE.MeshPhysicalMaterial({color:0x415361,metalness:.75,roughness:.25,clearcoat:1});
 const steel=new THREE.MeshStandardMaterial({color:0x172431,metalness:.47,roughness:.54});
 const matte=new THREE.MeshStandardMaterial({color:0x0b1521,metalness:.22,roughness:.83,side:THREE.DoubleSide});
+const capeCloth=new THREE.MeshStandardMaterial({color:0x273e55,emissive:0x081522,emissiveIntensity:.30,metalness:.10,roughness:.9,side:THREE.DoubleSide});
 const edge=new THREE.MeshStandardMaterial({color:0x71838c,metalness:.85,roughness:.27});
 const energy=new THREE.MeshStandardMaterial({color:0x9becff,emissive:0x35caff,emissiveIntensity:2.3});
 const enemyRed=new THREE.MeshStandardMaterial({color:0xff827c,emissive:0xe72b36,emissiveIntensity:2});
@@ -64,7 +65,11 @@ export function makeHero(){
  }
  const cols=17,rows=12,pos=[],uv=[],ind=[],base=[];
  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){
-  const t=j/rows,u=i/cols,x=(u-.5)*(.9+2.0*t),y=1.95-1.8*t,z=.27+.68*t*t;
+  const t=j/rows,u=i/cols;
+  const x=(u-.5)*(.87+1.45*t);
+  const scallop=Math.pow(t,5)*(.10+.14*Math.pow(Math.sin(u*Math.PI*4),2));
+  const y=1.95-1.75*t+scallop;
+  const z=.27+(.50+.13*Math.cos(u*2*Math.PI))*t*t;
   pos.push(x,y,z);uv.push(u,1-t);base.push(x,y,z,t,u);
  }
  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
@@ -73,7 +78,7 @@ export function makeHero(){
  const geo=new THREE.BufferGeometry();
  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(ind);geo.computeVertexNormals();
- const cape=new THREE.Mesh(geo,matte);cape.frustumCulled=false;root.add(cape);
+ const cape=new THREE.Mesh(geo,capeCloth);cape.frustumCulled=false;root.add(cape);
  const light=new THREE.PointLight(0x34aaff,1,5);light.position.set(0,1.65,-.6);root.add(light);
  let time=0;
  function animate(dt,speed,gliding,attacking,dodging){
