@@ -153,7 +153,7 @@ function createAtmosphere(scene) {
     color:0x9cc6ff,size:.37,transparent:true,opacity:.7,depthWrite:false,fog:false
   }));
   scene.add(stars);
-  const hazeMat=basic(0x326280,.033,true);
+  const hazeMat=basic(0x326280,.08,true);
   const haze=new THREE.Mesh(new THREE.PlaneGeometry(178,178),hazeMat);
   haze.rotation.x=-Math.PI/2;haze.position.y=.18;scene.add(haze);
   return {dome,stars,haze};
@@ -435,8 +435,8 @@ function addHeroArmor(player,glow) {
 export function installPremiumGraphics({scene,camera,renderer,buildings,player,mobile}) {
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.23;
-  scene.fog=new THREE.FogExp2(0x0d2030,mobile?.014:.0105);
+  renderer.toneMappingExposure=1.52;
+  scene.fog=new THREE.FogExp2(0x172c3b,mobile?.011:.0085);
   const glow=radialTexture();
   const sky=createAtmosphere(scene);
   makeWetStreets(scene);
@@ -444,7 +444,7 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
   const neon=neonDistrict(scene,glow);
   createVehicles(scene,glow);
   dressCity(scene,glow);
-  const heroAura=addHeroArmor(player,glow);
+  const heroAura=[]; // Armadura esculpida en hero.js; no superponer placas duplicadas.
   const lampGlow=[];
   for(let x=-60;x<=60;x+=20){
     for(const z of [-9.5,9.5]){
@@ -475,7 +475,7 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
     renderer.setPixelRatio(Math.min(devicePixelRatio||1,target));
     renderer.setSize(window.innerWidth,window.innerHeight,false);
     renderer.shadowMap.enabled=level==='cinematic'&&!mobile;
-    scene.fog.density=level==='eco'?.018:mobile?.014:.0105;
+    scene.fog.density=level==='eco'?.015:mobile?.011:.0085;
     clouds.forEach((obj,i)=>{obj.visible=level!=='eco'||i%3===0;});
     neon.glowing.forEach((obj,i)=>{obj.material.opacity=level==='eco'?.17:.33;});
     lampGlow.forEach((obj)=>{obj.material.opacity=level==='eco'?.18:.42;});
