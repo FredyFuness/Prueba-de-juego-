@@ -262,6 +262,8 @@ function createPlayer() {
     .52, 1.95, .24, .35, .25, .69, .96, .06, .62
   ], 3));
   capeGeo.computeVertexNormals();
+  const capeBaseX = Array.from(capeGeo.attributes.position.array).filter((_, i) => i % 3 === 0);
+  capeGeo.userData.baseX = capeBaseX;
   cape = mesh(capeGeo, new THREE.MeshStandardMaterial({
     color: 0x0b1b2c, side: THREE.DoubleSide, roughness: .86, metalness: .1
   }), player);
@@ -575,11 +577,10 @@ function updatePlayer(dt) {
   for (let i = 0; i < vertices.count; i++) {
     const y = vertices.getY(i);
     if (y < 1.5) {
-      const x = vertices.getX(i);
+      const x = cape.geometry.userData.baseX[i];
       const baseZ = Math.abs(x) > .75 ? .62 : Math.abs(x) < .1 ? .95 : .69;
       vertices.setZ(i, baseZ + (state.glide ? .75 : Math.sin(state.time * 7 + x * 2) * .09));
-      if (state.glide) vertices.setX(i, x * 1.8);
-      else if (Math.abs(x) > 1.2) vertices.setX(i, x / 1.8);
+      vertices.setX(i, state.glide ? x * 1.8 : x);
     }
   }
   vertices.needsUpdate = true;
