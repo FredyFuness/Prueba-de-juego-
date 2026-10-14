@@ -18,5 +18,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Validar sintaxis del motor
         run: node --check src/game.js
+      - name: Validar sintaxis de gráficos premium
+        run: node --check src/premium-graphics.js
       - name: Validar controles, interfaz y PWA
         run: node tests/smoke.mjs
