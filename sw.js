@@ -1,5 +1,5 @@
-const CACHE = 'nocturne-v2';
-const LOCAL = ['./','./index.html','./styles.css','./src/game.js','./assets/icon.svg','./manifest.webmanifest'];
+const CACHE = 'nocturne-v3-premium';
+const LOCAL = ['./','./index.html','./styles.css','./src/game.js','./src/premium-graphics.js','./assets/premium-ui.css','./assets/icon.svg','./manifest.webmanifest'];
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
 self.addEventListener('install', event => {
   event.waitUntil(
