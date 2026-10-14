@@ -13,7 +13,7 @@ const executable='/usr/bin/google-chrome';
     page.on('pageerror',e=>errors.push(e.message));
     page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
     page.on('requestfailed',r=>failedRequests.push(r.url()+': '+r.failure()?.errorText));
-    await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle2',timeout:45000});
+    await page.goto('http://127.0.0.1:4173/?qa=1',{waitUntil:'networkidle2',timeout:45000});
     await page.waitForSelector('#start-button');
     await page.waitForFunction(()=>document.querySelector('canvas#game-canvas')?.width>0,{timeout:25000});
     assert(await page.$('#start-button'),'Start button not found');
@@ -80,6 +80,30 @@ const executable='/usr/bin/google-chrome';
       return {controls:{x:controls.x,w:controls.width},joystick:{x:joystick.x,w:joystick.width}};
     });
     assert(phone.joystick.x+phone.joystick.w<phone.controls.x,'Portrait controls overlap');
+    // Validate the full second act and victory, not just level loading.
+    await page.evaluate(()=>window.__nocturneQA.startBoss());
+    const bossStatus=await page.evaluate(()=>window.__nocturneQA.getState());
+    console.log('Act II boss encounter:',JSON.stringify(bossStatus));
+    assert(bossStatus.act===2,'Completing Act I failed to start Act II');
+    assert(bossStatus.bossHealth===16,'Boss did not initialize with full health');
+    assert(await page.evaluate(()=>!document.querySelector('#boss-hud').classList.contains('hidden')),
+      'Boss HP meter did not appear');
+    await page.evaluate(()=>window.__nocturneQA.chargeEMP());
+    await page.evaluate(()=>{
+      document.querySelector('[data-action="special"]').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+    });
+    const emp=await page.evaluate(()=>window.__nocturneQA.getState().special);
+    assert(emp===0,'EMP did not discharge after pressing touch button');
+    await page.evaluate(()=>window.__nocturneQA.damageBoss(16));
+    const victory=await page.evaluate(()=>({
+      ...window.__nocturneQA.getState(),
+      title:document.querySelector('#result-title').textContent,
+      visible:!document.querySelector('#finish-screen').classList.contains('hidden')
+    }));
+    console.log('Campaign victory:',JSON.stringify(victory));
+    assert(victory.finished&&victory.visible,'Defeating boss did not finish campaign');
+    assert(/ciudad/i.test(victory.title),'Final victory title not displayed');
+    await page.screenshot({path:'/tmp/nocturne-victory.png'});
     assert(errors.length===0,'Uncaught browser exceptions: '+errors.join('; '));
     console.log('✓ Headless Chrome: render, title screen, game start, mobile controls and HUD OK');
   }finally{await browser.close();}
