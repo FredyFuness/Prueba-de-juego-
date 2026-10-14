@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#070d19" />
+  <meta name="description" content="NOCTURNE: Ciudad de Sombras. Aventura 3D de accion y exploracion, optimizada para moviles." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>NOCTURNE — Ciudad de Sombras</title>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js"}}</script>
+</head>
+<body>
+  <main id="game" aria-label="Juego de aventura en tercera persona">
+    <canvas id="game-canvas" aria-label="Escenario 3D"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="hud" class="hud hidden">
+      <header class="topbar">
+        <div class="brand"><span class="brand-symbol">◈</span><div><b>NOCTURNE</b><small>CIUDAD DE SOMBRAS</small></div></div>
+        <div class="top-actions"><span class="zone-pill"><span class="pulse-dot"></span> DISTRITO CERO</span><button id="pause-button" class="icon-button" aria-label="Pausar juego" title="Pausar">Ⅱ</button></div>
+      </header>
+      <section class="status-panel" aria-label="Estado del personaje">
+        <div class="status-line"><span>INTEGRIDAD</span><strong id="health-value">100</strong></div>
+        <div class="meter"><div id="health-fill" class="meter-fill health"></div></div>
+        <div class="status-line energy-line"><span>TECNOLOGÍA DEL GANCHO</span><strong id="energy-value">LISTO</strong></div>
+        <div class="meter thin"><div id="energy-fill" class="meter-fill energy"></div></div>
+      </section>
+      <aside class="mission-panel">
+        <div class="eyebrow">MISIÓN 01 · PATRULLA NOCTURNA</div>
+        <h2>Recuperar el distrito</h2>
+        <div class="objective"><span class="objective-icon">✦</span><span>Datos recuperados</span><strong id="intel-count">0 / 3</strong></div>
+        <div class="objective"><span class="objective-icon">⌖</span><span>Hostiles neutralizados</span><strong id="enemy-count">0 / 5</strong></div>
+        <p id="objective-hint">Explora las calles y encuentra los núcleos de datos.</p>
+      </aside>
+      <div class="minimap-container"><canvas id="minimap" width="170" height="170" aria-label="Minimapa"></canvas><span class="minimap-label">RADAR · EN VIVO</span></div>
+      <div id="target-label" class="target-label hidden">GANCHO DISPONIBLE</div>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div class="bottom-info"><span><b id="score-value">0000</b><small>PUNTOS</small></span><span class="control-hint">WASD MOVER · RATÓN CÁMARA · J GOLPEAR · ESPACIO SALTAR · F GANCHO · G PLANEAR</span></div>
+      <div id="touch-controls" class="touch-controls">
+        <div id="joystick" class="joystick" aria-label="Palanca virtual para movimiento"><div class="joystick-rings"></div><div id="joystick-knob" class="joystick-knob"></div></div>
+        <div class="touch-actions">
+          <button class="action-button utility" data-action="grapple" aria-label="Usar gancho"><span>↗</span><small>GANCHO</small></button>
+          <button class="action-button utility" data-action="glide" aria-label="Planear"><span>⌁</span><small>PLANEAR</small></button>
+          <button class="action-button utility" data-action="jump" aria-label="Saltar"><span>⇧</span><small>SALTAR</small></button>
+          <button class="action-button primary" data-action="attack" aria-label="Atacar"><span>⚔</span><small>ATAQUE</small></button>
+        </div>
+      </div>
+    </div>
+    <div id="start-screen" class="screen-backdrop">
+      <section class="start-card">
+        <div class="start-tag">UNA AVENTURA ORIGINAL EN 3D <span class="tag-dash"></span> VERSIÓN 1.0</div>
+        <div class="hero-mark">◈</div>
+        <h1>NOCTURNE</h1>
+        <div class="start-subtitle">CIUDAD DE SOMBRAS</div>
+        <p>La ciudad cayó en la oscuridad. Recorre sus calles, enfréntate a los vigilantes enemigos y recupera los archivos robados.</p>
+        <div class="feature-tags"><span>TERCERA PERSONA</span><span>COMBATE</span><span>GANCHO Y PLANEO</span></div>
+        <button id="start-button" class="launch-button">INICIAR PATRULLA <span>→</span></button>
+        <div class="start-footer"><span>◉ Optimizado para móvil</span><span>◉ También compatible con PC</span></div>
+        <p id="load-error" class="load-error hidden"></p>
+      </section>
+    </div>
+    <div id="pause-screen" class="screen-backdrop hidden">
+      <section class="modal-card"><div class="eyebrow">PATRULLA EN PAUSA</div><h2>La noche espera.</h2><p>Respira y vuelve cuando quieras.</p><button id="resume-button" class="launch-button">CONTINUAR <span>→</span></button><button id="restart-button" class="secondary-button">REINICIAR MISIÓN</button></section>
+    </div>
+    <div id="finish-screen" class="screen-backdrop hidden">
+      <section class="modal-card"><div id="result-tag" class="eyebrow">MISIÓN COMPLETADA</div><h2 id="result-title">Distrito recuperado</h2><p id="result-description">La ciudad aún te necesita.</p><div class="results"><div><small>UNTOS</small><b id="final-score">0000</b></div><div><small>HOSTILES</small><b id="final-enemies">0</b></div></div><button id="replay-button" class="launch-button">VOLVER A JUGAR <span>↻</span></button></section>
+    </div>
+  </main>
+  <script type="module" src="./src/game.js"></script>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body>
+</html>
