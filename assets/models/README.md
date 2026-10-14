@@ -1,15 +1,19 @@
-# Modelos y licencias
-NOCTURNE usa un personaje original procedural como respaldo y un humanoide glTF
-con animación y esqueleto para la versión detallada.
+# Recursos 3D y atribución
 
-**CesiumMan.glb** (cuando esté presente)
-- Autor y titular original: **Cesium** (2017).
-- Distribución: **Khronos glTF Sample Assets**.
-- Licencia de modelo y animación: **Creative Commons Attribution 4.0 (CC BY 4.0)**.
-- Fuente: https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CesiumMan
-- Avisos oficiales: https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/CesiumMan/LICENSE.md
-- Transformaciones realizadas al mostrarlo: todos los materiales y texturas de Cesium se sustituyen en tiempo de ejecución por materiales NOCTURNE propios, se altera orientación/tamaño, se adapta a los enemigos y a la animación de combate. No se pretende utilizar ni promocionar la marca Cesium.
+## Modelo principal — Soldier.glb
 
-**Aviso:** La licencia CC BY requiere mantener la atribución incluso en versiones
-redistribuidas de la web o de una app. Los personajes NOCTURNE no son Batman.
-No se incluyen personajes ni recursos oficiales de Batman: Arkham Knight.
+- Fuente: [Three.js r164: Soldier.glb](https://github.com/mrdoob/three.js/blob/r164/examples/models/gltf/Soldier.glb).
+- Colaborador del modelo al repositorio: **Mugen87**. Three.js se distribuye bajo licencia MIT; consulta el historial y los avisos del repositorio para la procedencia específica de los recursos de ejemplo.
+- Archivo original: `assets/models/soldier.glb` (aprox. 2.1 MB).
+- Incluye esqueleto, mallas, materiales, texturas y los clips `Idle`, `Walk`, `Run`, `TPose`.
+- Modificaciones del juego: se adaptan tamaño, orientación y materiales; se añade casco, visor luminoso, detalles decorativos y capa procedural original. El mismo modelo se usa como cuerpo de los enemigos con otro tratamiento visual.
+
+## Modelo secundario — CesiumMan.glb
+
+- Autor: **Cesium** (2017).
+- Fuente: [Khronos glTF Sample Assets](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CesiumMan).
+- Licencia: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/legalcode).
+- Avisos originales: [CesiumMan/LICENSE.md](https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/CesiumMan/LICENSE.md).
+- Se utiliza solamente como respaldo si falla la carga del modelo principal. Se adaptan tamaño, dirección y materiales sin mostrar deliberadamente sus marcas.
+
+No se usan recursos ni imágenes oficiales de Batman o Arkham Knight. Mantén estas atribuciones si redistribuyes la aplicación o sus archivos.
