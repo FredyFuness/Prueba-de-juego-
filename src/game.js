@@ -121,7 +121,7 @@ function setupScene() {
   actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify,cape:heroRig.cape});
   premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
   actorSystem.start().then(result=>{
-    window.__nocturneModelStatus={loaded:result.loaded,characters:result.characters,error:result.error};
+    window.__nocturneModelStatus={loaded:result.loaded,characters:result.characters,error:result.error,asset:result.asset,animations:result.animations};
     document.documentElement.dataset.actorModel=result.loaded?'gltf':'procedural';
     const status=$('model-status');
     if(status)status.textContent=result.loaded
