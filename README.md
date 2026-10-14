@@ -18,6 +18,13 @@ Publicado por GitHub Pages desde `main` (raíz del repositorio). En iPhone, abre
 | **4. Jugabilidad** | Cámara sobre el hombro con suavizado y prevención básica de colisiones, ataque, esquiva, gancho, salto, planeo, vida, enemigos y tres núcleos de datos. |
 | **5. Teléfono y publicación** | Joystick y cinco botones táctiles, estilos horizontal/vertical, modos Fluidez/Equilibrado/Cinemático, PWA con caché del modelo 3D, pruebas automáticas y GitHub Pages. |
 
+### Ajustes 4.1 basados en pruebas reales de iPhone
+
+- **Vehículos menos geométricos:** la carrocería se genera con perfiles curvos y extrusión biselada; incluye cristales laterales, faros, ruedas y espejos.
+- **Misiones desplegables en móvil:** el progreso se mantiene en una pequeña barra y el panel completo se abre con «OBJETIVOS», evitando que tape el joystick.
+- **Cámara más cercana en móvil:** ligeramente menos campo de visión para dar mayor protagonismo al personaje.
+- **Pantalla despejada:** se retira el rótulo constante «GANCHO DISPONIBLE» cuando se juega con controles táctiles.
+
 La fase 1 utiliza una malla humana animada REAL y un recurso GLB local, no un humanoide construido únicamente con cubos. Es un modelo de muestra rediseñado con materiales de NOCTURNE, **no un modelo cinematográfico AAA de un superhéroe**. Las fachadas son detalladas, pero la ciudad sigue siendo una demostración compacta y no un mapa abierto de gran escala. Los reflejos y efectos atmosféricos son aproximaciones aptas para móvil, no ray tracing.
 
 ### Controles en teléfono
