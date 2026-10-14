@@ -16,7 +16,7 @@ La configuración actual es **Settings → Pages → Build and deployment → So
 
 - **Joystick izquierdo:** caminar por la ciudad.
 - **Deslizar sobre el escenario:** girar la cámara.
-- **ATAQUE:** golpear al enemigo más cercano.
+- **ATAQUE:** golpear al enemigo más cercano.\n- **ESQUIVAR:** maniobra corta para evitar ataques.
 - **SALTAR:** alcanzar alturas e iniciar un salto.
 - **PLANEAR:** activar o desactivar el planeo mientras estás en el aire.
 - **GANCHO:** subir rápidamente hasta la azotea de un edificio cercano en la dirección de la cámara.
@@ -32,7 +32,7 @@ Se recomienda Safari actualizado en iPhone o Chrome actualizado en Android. Pued
 | Correr | Shift mientras caminas |
 | Girar cámara | Arrastrar con mouse |
 | Saltar | Espacio |
-| Atacar | J o K |
+| Atacar | J o K |\n| Esquivar | L o Control |
 | Planear | G |
 | Gancho | F |
 | Pausa | P o Escape |
@@ -44,7 +44,7 @@ Se recomienda Safari actualizado en iPhone o Chrome actualizado en Android. Pued
 - Evita perder toda la integridad.
 - Completa ambos objetivos para asegurar el distrito.
 
-## ✨ Edición cinematográfica 2.0 — mejora visual premium
+## ✨ Edición definitiva 3.0 — acción y estilo cinematográfico
 
 Esta actualización renueva el aspecto gráfico del prototipo, manteniendo las mecánicas y controles existentes:
 
@@ -52,7 +52,7 @@ Esta actualización renueva el aspecto gráfico del prototipo, manteniendo las m
 - **Edificios detallados:** fachadas con marcos, cornisas, estructura metálica, puertas, persianas, azoteas y elementos industriales.
 - **Ciudad viva:** vehículos estacionados originales, paradas urbanas, semáforos, pasos peatonales, bolardos y mobiliario callejero.
 - **Iluminación nocturna:** letreros de neón ficticios, reflejos estilizados, luces cálidas, bruma urbana, estrellas y nubes.
-- **Personaje mejorado:** placas adicionales en la armadura, acabados metálicos, piezas luminosas y aura visual al planear.
+- **Personaje original completamente rediseñado:** mallas curvas, armadura de varias piezas, casco con visor, capa de tejido procedural con animación en tiempo real, brazos y piernas articulados.\n- **Cámara cinematográfica:** plano sobre el hombro, seguimiento suave, mayor cercanía al héroe y protección básica para evitar que atraviese edificios.\n- **Combate mejorado:** enemigos con mallas más suaves, animaciones de impacto, esquiva con breve invulnerabilidad, sacudida de cámara y efectos visuales.\n- **Lluvia visible:** trazos tridimensionales en movimiento en lugar de partículas puntuales.
 - **Tres calidades en el menú de pausa:** **Fluidez**, **Equilibrado** y **Cinemático**. El teléfono inicia en Equilibrado y puede cambiar automáticamente a Fluidez ante una caída sostenida de FPS.
 - **Optimización:** geometría repetida con `InstancedMesh`, límites de resolución según pantalla, texturas generadas localmente y materiales reutilizados.
 - **PWA:** los archivos nuevos entran en el caché para futuras visitas desde el teléfono.
