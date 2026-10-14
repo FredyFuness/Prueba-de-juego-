@@ -39,7 +39,7 @@ assert(html.includes('assets/premium-ui.css'), 'La interfaz no carga los estilos
 assert(js.includes("from './premium-graphics.js'"), 'El motor no importa el módulo premium');
 assert(js.includes('installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE})'), 'El motor premium no se inicializa');
 assert(js.includes('premiumGraphics.update('), 'La escena cinematográfica no se anima');
-assert(html.includes('EDICIÓN CINEMATOGRÁFICA · 4.0'), 'Falta identificación de edición 4.0');
+assert(html.includes('EDICIÓN DE ACCIÓN · 5.0'), 'Falta identificación de edición 5.0');
 for (const mode of ['eco', 'balanced', 'cinematic']) {
   assert(html.includes('data-quality="' + mode + '"'), 'Falta control gráfico: '+mode);
 }
@@ -81,4 +81,19 @@ assert(html.includes('id="mission-toggle"'), 'Falta botón de misión compacta')
 assert(html.includes('id="quick-progress"'), 'Falta marcador de misión compacto');
 assert(js.includes("mission-panel').classList.toggle('expanded')"), 'Los objetivos no se pueden expandir');
 assert(html.includes('id="start-button"'), 'No hay forma de iniciar una partida');
+assert(existsSync(join(root,'src/encounter.js')),'No existe campaña Acto II');
+const encounter=read('src/encounter.js');
+for(const feature of ['startBoss()','hitBoss(','firePulse(','dropHeal(','shoot(']){
+  assert(encounter.includes(feature),'Falta función de aventura: '+feature);
+}
+assert(js.includes("from './encounter.js'"), 'No se integra sistema de jefe');
+assert(js.includes('encounter?.startBoss()'), 'No se activa jefe tras el Acto I');
+assert(js.includes('function doSpecial()'), 'Falta habilidad EMP');
+assert(js.includes('state.comboHits'), 'Falta combo de ataques');
+assert(html.includes('data-action="special"'), 'Falta botón EMP móvil');
+assert(js.includes("action==='special'"), 'Falta controlador EMP');
+assert(html.includes('id="boss-health-fill"'), 'Falta barra de vida del jefe');
+assert(html.includes('id="combo-value"'), 'Falta indicador de combo');
+assert(html.includes('id="career-summary"'), 'Falta historial de récords');
+assert(sw.includes('encounter.js'), 'La PWA no guarda el Acto II');
 console.log('✓ Smoke test: DOM, controles móviles, recursos, PWA y motor 3D OK');
