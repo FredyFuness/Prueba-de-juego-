@@ -44,6 +44,21 @@ Se recomienda Safari actualizado en iPhone o Chrome actualizado en Android. Pued
 - Evita perder toda la integridad.
 - Completa ambos objetivos para asegurar el distrito.
 
+## ✨ Edición cinematográfica 2.0 — mejora visual premium
+
+Esta actualización renueva el aspecto gráfico del prototipo, manteniendo las mecánicas y controles existentes:
+
+- **Pavimento húmedo:** textura de asfalto generada proceduralmente, charcos, trazos luminosos y materiales físicamente basados (PBR).
+- **Edificios detallados:** fachadas con marcos, cornisas, estructura metálica, puertas, persianas, azoteas y elementos industriales.
+- **Ciudad viva:** vehículos estacionados originales, paradas urbanas, semáforos, pasos peatonales, bolardos y mobiliario callejero.
+- **Iluminación nocturna:** letreros de neón ficticios, reflejos estilizados, luces cálidas, bruma urbana, estrellas y nubes.
+- **Personaje mejorado:** placas adicionales en la armadura, acabados metálicos, piezas luminosas y aura visual al planear.
+- **Tres calidades en el menú de pausa:** **Fluidez**, **Equilibrado** y **Cinemático**. El teléfono inicia en Equilibrado y puede cambiar automáticamente a Fluidez ante una caída sostenida de FPS.
+- **Optimización:** geometría repetida con `InstancedMesh`, límites de resolución según pantalla, texturas generadas localmente y materiales reutilizados.
+- **PWA:** los archivos nuevos entran en el caché para futuras visitas desde el teléfono.
+
+**Importante:** es una mejora visual sustancial de un juego web ligero; los reflejos en el piso son efectos aproximados, no trazado de rayos. Los modelos de personajes siguen siendo geométricos, todavía no hay mocap ni los recursos de un juego AAA. Si el teléfono se calienta, elige **Fluidez** en el menú de pausa.
+
 ## 🛠️ Tecnologías
 
 - **JavaScript moderno** (sin compilación ni instalación de Node para jugar)
@@ -61,9 +76,11 @@ El proyecto está diseñado sin motores pesados ni descargas de grandes assets. 
 Prueba-de-juego-/
 ├── .github/workflows/tests.yml\n├── tests/smoke.mjs
 ├── assets/
-│   └── icon.svg
+│   ├── icon.svg
+│   └── premium-ui.css
 ├── src/
-│   └── game.js
+│   ├── game.js
+│   └── premium-graphics.js
 ├── index.html
 ├── styles.css
 ├── manifest.webmanifest
@@ -82,7 +99,7 @@ python -m http.server 8000
 
 Visita http://localhost:8000/ desde la computadora. Para probarlo en el teléfono dentro de la misma red Wi-Fi, utiliza la dirección IP local de tu computadora y un servidor que escuche en `0.0.0.0`. En iOS, algunos permisos de PWA necesitan un origen HTTPS, por eso GitHub Pages es la opción recomendada.
 
-> Este es un **primer prototipo** de una aventura en tercera persona; no es un juego AAA completo. Próximos pasos sugeridos: modelos GLTF originales, animaciones, combos y evasiones, optimización, más misiones y guardado de progreso.
+> NOCTURNE 2.0 sigue siendo un **prototipo independiente** de aventura en tercera persona y no un juego AAA completo. Próximos hitos: personajes GLTF originales con rig y animaciones, materiales PBR detallados, combate con combos/evasivas, más misiones, sonidos ambientales y progreso persistente.
 
 ### Créditos
 
