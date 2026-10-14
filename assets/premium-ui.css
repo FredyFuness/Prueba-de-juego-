@@ -104,3 +104,37 @@ body{background:#030812}
  .mission-panel{background:linear-gradient(115deg,#031426ed,#041a30df)}
  .toast{max-width:61vw;top:24%!important;left:51%;font-size:9px;line-height:1.3}
 }
+
+
+/* NOCTURNE 4.1: player-first HUD. Objectives are expandable on phones. */
+.mission-toggle{display:none}
+@media(pointer:coarse){
+ .mission-toggle{
+  position:absolute;top:132px;left:max(17px,env(safe-area-inset-left));z-index:5;
+  display:flex;align-items:center;gap:10px;padding:7px 10px;
+  max-width:205px;min-height:29px;border-radius:7px;
+  border:1px solid #5ccce069;background:rgba(3,19,35,.86);
+  color:#a9e8f5;font-weight:900;font-size:9px;letter-spacing:.09em;
+  pointer-events:auto;backdrop-filter:blur(5px);
+ }
+ .mission-toggle strong{color:#fff;font-size:10px;letter-spacing:.035em;white-space:nowrap}
+ .mission-panel{display:none!important;z-index:6!important}
+ .mission-panel.expanded{display:block!important;top:167px!important;
+  left:max(17px,env(safe-area-inset-left));max-width:210px;width:210px!important;
+  padding:10px 12px!important}
+ .target-label{display:none!important}
+ .mission-panel.expanded h2{font-size:14px!important}
+ .mission-panel.expanded .objective{font-size:10px!important}
+ .mission-panel.expanded p{display:block;font-size:9px}
+}
+@media(pointer:coarse) and (orientation:landscape){
+ .mission-toggle{top:124px!important}
+ .mission-panel.expanded{top:159px!important}
+ .toast{top:29%!important;max-width:52vw;left:50%;font-size:10px}
+ .topbar .brand{transform:scale(.94);transform-origin:left top}
+}
+@media(pointer:coarse) and (orientation:portrait){
+ .mission-toggle{top:163px!important}
+ .mission-panel.expanded{top:199px!important}
+ .minimap-container{right:max(17px,env(safe-area-inset-right))}
+}
