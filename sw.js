@@ -1,5 +1,5 @@
-const CACHE = 'nocturne-v5-skinned';
-const LOCAL = ['./','./index.html','./styles.css','./src/game.js','./src/premium-graphics.js','./src/city-v4.js','./src/hero.js','./src/actors.js','./assets/models/cesium-man.glb','./assets/premium-ui.css','./assets/icon.svg','./manifest.webmanifest'];
+const CACHE = 'nocturne-v6-soldier';
+const LOCAL = ['./','./index.html','./styles.css','./src/game.js','./src/premium-graphics.js','./src/city-v4.js','./src/hero.js','./src/actors.js','./assets/models/soldier.glb','./assets/models/cesium-man.glb','./assets/premium-ui.css','./assets/icon.svg','./manifest.webmanifest'];
 const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
 const CDN_PREFIX='https://cdn.jsdelivr.net/npm/three@0.164.1/';
 const CDN_ASSETS=[
