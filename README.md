@@ -6,11 +6,11 @@ Un héroe original recorre una ciudad nocturna, recupera archivos tecnológicos,
 
 ## ▶️ Jugar
 
-Al activar GitHub Pages con **GitHub Actions** en este repositorio, el juego se publicará en:
+El juego se publica desde la rama **main**, carpeta **/ (root)**, mediante GitHub Pages en:
 
 **https://fredyfuness.github.io/Prueba-de-juego-/**
 
-Si la página muestra 404, todavía no se ha habilitado GitHub Pages o no se ha completado el despliegue. Actívalo una sola vez desde el repositorio: **Settings → Pages → Build and deployment → Source: GitHub Actions**. El archivo `.github/workflows/deploy-pages.yml` publicará cada cambio enviado a `main`.
+La configuración actual es **Settings → Pages → Build and deployment → Source: Deploy from a branch → main → / (root)**. GitHub publica los cambios de `main` automáticamente. Si la página aún no carga, espera a que termine el proceso **pages build and deployment** en la pestaña Actions.
 
 ### En el teléfono 📱
 
@@ -59,7 +59,7 @@ El proyecto está diseñado sin motores pesados ni descargas de grandes assets. 
 
 ```text
 Prueba-de-juego-/
-├── .github/workflows/deploy-pages.yml
+├── .github/workflows/tests.yml\n├── tests/smoke.mjs
 ├── assets/
 │   └── icon.svg
 ├── src/
