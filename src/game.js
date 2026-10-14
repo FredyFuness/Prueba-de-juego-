@@ -25,6 +25,7 @@ const state = {
 const moveInput = { x: 0, z: 0 };
 const keys = new Set();
 let renderer, scene, camera, player, cape, leftArm, rightArm, leftLeg, rightLeg;
+let heroRig=null,cameraShake=0,attackCombo=0;
 let premiumGraphics=null;
 let qualityAuto=true, qualityTimer=0, qualityFrames=0, slowIntervals=0;
 let rain, rainPositions, grappleLine, grapplePositions, playerLight;
