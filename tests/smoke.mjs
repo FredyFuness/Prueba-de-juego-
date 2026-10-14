@@ -71,5 +71,14 @@ assert(premium.includes("from './city-v4.js'"), 'No se cargan fachadas detallada
 assert(sw.includes('cesium-man.glb'), 'La PWA no cachea el modelo 3D local');
 assert(sw.includes('city-v4.js'), 'La PWA no cachea el nuevo entorno');
 assert(sw.includes('actors.js'), 'La PWA no cachea los actores animados');
+assert(existsSync(join(root,'src/vehicles.js')), 'Falta carrocería curvada de vehículos');
+const vehicles=read('src/vehicles.js');
+assert(vehicles.includes('ExtrudeGeometry'), 'Los vehículos siguen siendo cajas sin carrocería curva');
+assert(premium.includes("from './vehicles.js'"), 'La escena aún no integra vehículos detallados');
+assert(!premium.includes('function createVehicles(scene,glow)'), 'Quedan vehículos geométricos antiguos');
+assert(sw.includes('vehicles.js'), 'La caché móvil no incluye vehículos');
+assert(html.includes('id="mission-toggle"'), 'Falta botón de misión compacta');
+assert(html.includes('id="quick-progress"'), 'Falta marcador de misión compacto');
+assert(js.includes("mission-panel').classList.toggle('expanded')"), 'Los objetivos no se pueden expandir');
 assert(html.includes('id="start-button"'), 'No hay forma de iniciar una partida');
 console.log('✓ Smoke test: DOM, controles móviles, recursos, PWA y motor 3D OK');
