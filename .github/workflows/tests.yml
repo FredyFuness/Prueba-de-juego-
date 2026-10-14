@@ -22,6 +22,10 @@ jobs:
         run: node --check src/premium-graphics.js
       - name: Validar personaje y animaciones
         run: node --check src/hero.js
+      - name: Validar humanoides con esqueleto glTF
+        run: node --check src/actors.js
+      - name: Validar ciudad detallada
+        run: node --check src/city-v4.js
       - name: Validar controles, interfaz y PWA
         run: node tests/smoke.mjs
 
@@ -46,4 +50,5 @@ jobs:
           path: |
             /tmp/nocturne-intro.png
             /tmp/nocturne-gameplay.png
+            /tmp/nocturne-portrait.png
           if-no-files-found: ignore
