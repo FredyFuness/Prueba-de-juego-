@@ -33,16 +33,24 @@
         <span>OBJETIVOS</span><strong id="quick-progress">0/3 ◈ 0/5</strong>
       </button>
       <aside id="mission-panel" class="mission-panel">
-        <div class="eyebrow">MISIÓN 01 · PATRULLA NOCTURNA</div>
-        <h2>Recuperar el distrito</h2>
+        <div id="mission-phase" class="eyebrow">ACTO I · RECUPERA EL DISTRITO</div>
+        <h2 id="mission-title">Recuperar el distrito</h2>
         <div class="objective"><span class="objective-icon">✦</span><span>Datos recuperados</span><strong id="intel-count">0 / 3</strong></div>
         <div class="objective"><span class="objective-icon">⌖</span><span>Hostiles neutralizados</span><strong id="enemy-count">0 / 5</strong></div>
         <p id="objective-hint">Explora las calles y encuentra los núcleos de datos.</p>
       </aside>
       <div class="minimap-container"><canvas id="minimap" width="170" height="170" aria-label="Minimapa"></canvas><span class="minimap-label">RADAR · EN VIVO</span></div>
+      <div id="boss-hud" class="boss-hud hidden" aria-label="Salud del jefe">
+        <div class="boss-top"><span>OBJETIVO PRIORITARIO · CENTINELA</span><strong id="boss-health-value">16 / 16</strong></div>
+        <div class="boss-meter"><div id="boss-health-fill"></div></div>
+      </div>
+      <div id="combat-flash" class="combat-flash" aria-hidden="true"></div>
+      <div id="combat-notice" class="combat-notice" aria-live="polite"></div>
       <div id="target-label" class="target-label hidden">GANCHO DISPONIBLE</div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <div class="bottom-info"><span><b id="score-value">0000</b><small>PUNTOS</small></span><span class="control-hint">WASD MOVER · RATÓN CÁMARA · J ATAQUE · L ESQUIVA · ESPACIO SALTAR · F GANCHO · G PLANEAR</span></div>
+      <div class="combo-display"><strong id="combo-value"></strong><small id="combo-label"></small></div>
+      <div class="special-meter"><span>IMPULSO EMP</span><div><i id="special-fill"></i></div><b id="special-status">RECARGANDO</b></div>
+      <div class="bottom-info"><span><b id="score-value">0000</b><small>PUNTOS</small></span><span class="control-hint">WASD MOVER · RATÓN CÁMARA · J ATAQUE · E EMP · L ESQUIVA · ESPACIO SALTAR · F GANCHO · G PLANEAR</span></div>
       <div id="touch-controls" class="touch-controls">
         <div id="joystick" class="joystick" aria-label="Palanca virtual para movimiento"><div class="joystick-rings"></div><div id="joystick-knob" class="joystick-knob"></div></div>
         <div class="touch-actions">
@@ -51,18 +59,20 @@
           <button class="action-button utility" data-action="jump" aria-label="Saltar"><span>⇧</span><small>SALTAR</small></button>
           <button class="action-button primary" data-action="attack" aria-label="Atacar"><span>⚔</span><small>ATAQUE</small></button>
           <button class="action-button utility dodge" data-action="dodge" aria-label="Esquivar"><span>↶</span><small>ESQUIVAR</small></button>
+          <button class="action-button special" data-action="special" aria-label="Descargar impulso EMP" title="Pulso EMP"><span>✺</span><small>EMP</small></button>
         </div>
       </div>
     </div>
     <div id="start-screen" class="screen-backdrop">
       <section class="start-card">
-        <div class="start-tag">UNA AVENTURA ORIGINAL EN 3D <span class="tag-dash"></span> <span class="edition">EDICIÓN CINEMATOGRÁFICA · 4.0</span></div>
+        <div class="start-tag">UNA AVENTURA ORIGINAL EN 3D <span class="tag-dash"></span> <span class="edition">EDICIÓN DE ACCIÓN · 5.0</span></div>
         <div class="hero-mark">◈</div>
         <h1>NOCTURNE</h1>
         <div class="start-subtitle">CIUDAD DE SOMBRAS</div>
-        <p>La ciudad cayó en la oscuridad. Recorre sus calles, enfréntate a los vigilantes enemigos y recupera los archivos robados.</p>
-        <div class="feature-tags"><span>ACCIÓN CINEMATOGRÁFICA</span><span>COMBATE + ESQUIVA</span><span>GANCHO Y PLANEO</span></div>
-        <button id="start-button" class="launch-button">INICIAR PATRULLA <span>→</span></button>
+        <p>La ciudad cayó en la oscuridad. Recupera tres archivos, vence a las patrullas enemigas y enfrenta al Centinela. Encadena ataques, esquiva y activa tu pulso EMP.</p>
+        <div class="feature-tags"><span>ACCIÓN CINEMATOGRÁFICA</span><span>COMBOS + EMP</span><span>JEFE FINAL</span></div>
+        <button id="start-button" class="launch-button">INICIAR CAMPAÑA <span>→</span></button>
+        <p id="career-summary" class="career-summary">Tus récords y victorias se guardan en este dispositivo.</p>
         <div class="start-footer"><span>◉ Optimizado para móvil</span><span>◉ También compatible con PC</span><span id="model-status">◌ Preparando personajes animados...</span></div>
         <p id="load-error" class="load-error hidden"></p>
       </section>
@@ -71,7 +81,7 @@
       <section class="modal-card"><div class="eyebrow">PATRULLA EN PAUSA</div><h2>La noche espera.</h2><p>Respira y vuelve cuando quieras.</p><button id="resume-button" class="launch-button">CONTINUAR <span>→</span></button><div class="graphics-settings"><span>CALIDAD GRÁFICA</span><div class="graphics-options" role="group" aria-label="Calidad gráfica"><button data-quality="eco" aria-pressed="false">FLUIDEZ</button><button data-quality="balanced" aria-pressed="true">EQUILIBRADO</button><button data-quality="cinematic" aria-pressed="false">CINEMÁTICO</button></div><small>Elige una calidad más baja si tu teléfono se calienta o el juego pierde fluidez.</small></div><button id="restart-button" class="secondary-button">REINICIAR MISIÓN</button></section>
     </div>
     <div id="finish-screen" class="screen-backdrop hidden">
-      <section class="modal-card"><div id="result-tag" class="eyebrow">MISIÓN COMPLETADA</div><h2 id="result-title">Distrito recuperado</h2><p id="result-description">La ciudad aún te necesita.</p><div class="results"><div><small>PUNTOS</small><b id="final-score">0000</b></div><div><small>HOSTILES</small><b id="final-enemies">0</b></div></div><button id="replay-button" class="launch-button">VOLVER A JUGAR <span>↻</span></button></section>
+      <section class="modal-card"><div id="result-tag" class="eyebrow">MISIÓN COMPLETADA</div><h2 id="result-title">Distrito recuperado</h2><p id="result-description">La ciudad aún te necesita.</p><div class="results"><div><small>PUNTOS</small><b id="final-score">0000</b></div><div><small>HOSTILES</small><b id="final-enemies">0</b></div></div><p id="career-result" class="career-result"></p><button id="replay-button" class="launch-button">VOLVER A JUGAR <span>↻</span></button></section>
     </div>
   </main>
   <script type="module" src="./src/game.js"></script>
