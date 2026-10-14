@@ -1,4 +1,4 @@
-# NOCTURNE 4.0 — Ciudad de Sombras
+# NOCTURNE 5.0 — Ciudad de Sombras
 
 Juego **original de aventura y acción 3D**, en tercera persona, publicado para navegador de computadora y teléfono. Su atmósfera es de thriller urbano nocturno; NO se utilizan imágenes, personajes ni música de Batman: Arkham Knight.
 
@@ -7,6 +7,19 @@ Juego **original de aventura y acción 3D**, en tercera persona, publicado para 
 **https://fredyfuness.github.io/Prueba-de-juego-/**
 
 Publicado por GitHub Pages desde `main` (raíz del repositorio). En iPhone, abre el enlace en Safari y gira el teléfono horizontalmente. También puedes elegir «Añadir a pantalla de inicio».
+
+## Campaña de acción 5.0
+
+- **ACTO I – La caída del distrito:** derrota patrullas de tres clases y recupera tres archivos luminosos. Los enemigos **exploradores** persiguen rápidamente, los **pesados** resisten golpes y anuncian ataques contundentes, y los **tiradores** lanzan proyectiles a distancia.
+- **ACTO II – El Centinela:** aparece un jefe volador con barra de vida, disparos, ataque radial telegrafiado y segunda fase de mayor dificultad cuando pierde la mitad de su integridad.
+- **Combos de golpes:** hasta ×12 golpes encadenados y multiplicadores de puntuación por combos más largos. Los ataques especiales de una secuencia causan daño extra.
+- **EMP:** habilidad cargable con los golpes, los archivos recuperados y la esquiva perfecta. Aturde y daña a enemigos cercanos, limpia proyectiles y puede afectar al jefe.
+- **Esquiva perfecta:** evita ataques enemigos en su ventana de aviso para obtener energía EMP y puntuación adicional.
+- **Botiquines:** aparecen después de determinados enfrentamientos y antes del jefe, recuperando 24 puntos de vida.
+- **Récords locales:** guarda mejores puntuaciones, partidas disputadas y victorias en el navegador. Este registro es local a cada dispositivo.
+- **Interfaz móvil:** seis botones táctiles, barra del jefe, estado EMP y multiplicador de combo.
+
+Esta campaña es un capítulo corto de un juego indie web. No es equivalente en duración, contenido, animación ni calidad a un título AAA.
 
 ## Reconstrucción visual 4.0
 
@@ -31,7 +44,7 @@ La fase 1 utiliza una malla humana animada REAL y un recurso GLB local, no un hu
 
 - **Joystick izquierdo**: caminar y controlar la dirección.
 - **Deslizar sobre la pantalla**: mover la cámara en tercera persona.
-- **ATAQUE**: golpear a un enemigo.
+- **ATAQUE**: atacar para formar combos y cargar el EMP.
 - **ESQUIVAR**: desplazamiento evasivo con breve protección.
 - **SALTAR**: saltar o iniciar planeo desde una altura.
 - **PLANEAR**: activar la capa al estar en el aire.
@@ -45,16 +58,14 @@ La fase 1 utiliza una malla humana animada REAL y un recurso GLB local, no un hu
 | Caminar | W, A, S, D o flechas |
 | Correr | Shift |
 | Cámara | Arrastrar mouse |
-| Atacar | J o K |
+| Atacar | J o K |\n| Impulso EMP | E |
 | Esquivar | L o Control izquierdo |
 | Saltar | Espacio |
 | Planear | G |
 | Gancho | F |
 | Pausa | P o Escape |
 
-### Misión inicial
-
-Recupera **3 núcleos de datos** luminosos y neutraliza **5 hostiles** sin perder toda tu integridad. El radar muestra las ubicaciones. Puedes reiniciar para volver a jugar.
+### Misión inicial y jefe\n\nRecupera **3 núcleos de datos** y derrota **5 enemigos**. Después, dirígete al norte para enfrentarte al Centinela. Esquiva su onda de choque, evita los disparos y ataca su núcleo. La campaña termina con una victoria o derrota; puedes volver a jugar y superar tu récord.
 
 ## Tecnologías
 
@@ -89,7 +100,7 @@ Prueba-de-juego-/
 │       ├── soldier.glb
 │       └── README.md
 ├── src/
-│   ├── game.js
+│   ├── encounter.js\n│   ├── game.js
 │   ├── actors.js
 │   ├── hero.js
 │   ├── premium-graphics.js
