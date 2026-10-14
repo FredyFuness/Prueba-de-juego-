@@ -1,0 +1,19 @@
+{
+  "name": "NOCTURNE — Ciudad de Sombras",
+  "short_name": "NOCTURNE",
+  "description": "Aventura 3D para movil",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#061323",
+  "theme_color": "#061323",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
