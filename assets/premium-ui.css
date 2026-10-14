@@ -91,3 +91,16 @@ body{background:#030812}
   .bottom-info{top:160px}
   .joystick{bottom:max(58px,env(safe-area-inset-bottom))}
 }
+
+/* Final HUD pass: keep score away from the mission and energy meters. */
+@media(pointer:coarse) and (orientation:landscape) {
+ .bottom-info{top:17px!important;left:49%!important;bottom:auto!important;transform:translateX(-50%);pointer-events:none}
+ .bottom-info b{font-size:21px;letter-spacing:.12em}
+ .bottom-info small{font-size:8px}
+ .mission-panel{background:linear-gradient(115deg,#031426e8,#041a30c9)}
+}
+@media(pointer:coarse) and (orientation:portrait) {
+ .bottom-info{display:none!important}
+ .mission-panel{background:linear-gradient(115deg,#031426ed,#041a30df)}
+ .toast{max-width:61vw;top:24%!important;left:51%;font-size:9px;line-height:1.3}
+}
