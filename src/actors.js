@@ -1,137 +1,114 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
+import { clone as skeletonClone } from 'three/addons/utils/SkeletonUtils.js';
 
-// Real skinned and interpolated glTF geometry replaces primitives when loaded.
-// CC BY 4.0 model: CesiumMan © 2017 Cesium. Logo/trademark textures not used.
-const LOCAL_URL='./assets/models/cesium-man.glb';
-const MIRROR_URL='https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb';
-const MAX_ENEMIES=8;
-const suit=new THREE.MeshPhysicalMaterial({color:0x233a4b,roughness:.42,metalness:.5,clearcoat:.68,clearcoatRoughness:.24,side:THREE.DoubleSide});
-const armor=new THREE.MeshPhysicalMaterial({color:0x546b77,roughness:.3,metalness:.78,clearcoat:.9,clearcoatRoughness:.2,side:THREE.DoubleSide});
-const enemySuit=new THREE.MeshStandardMaterial({color:0x53404b,roughness:.57,metalness:.33,side:THREE.DoubleSide});
-const enemyArmor=new THREE.MeshStandardMaterial({color:0x81505f,roughness:.46,metalness:.55,side:THREE.DoubleSide});
-const glow=new THREE.MeshBasicMaterial({color:0x62efff});
-const threat=new THREE.MeshBasicMaterial({color:0xff5f72});
-function loadGLB(url) {
+// Source: Khronos glTF Sample Assets / CesiumMan (© Cesium, CC BY 4.0).
+// We discard all original materials and logos, retain the rig, silhouette and animation.
+// A local build can bundle assets/models/cesium-man.glb. Until bundled, use the
+// same public open-source sample through GitHub's raw content service.
+const MODEL_URL='./assets/models/cesium-man.glb';
+const FALLBACK_URL='https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb';
+const heroFabric=new THREE.MeshPhysicalMaterial({color:0x101e2d,metalness:.24,roughness:.72,clearcoat:.25,side:THREE.DoubleSide});
+const heroMetal=new THREE.MeshPhysicalMaterial({color:0x4d6472,metalness:.79,roughness:.28,clearcoat:.8,side:THREE.DoubleSide});
+const hostileFabric=new THREE.MeshStandardMaterial({color:0x3a3037,metalness:.24,roughness:.76,side:THREE.DoubleSide});
+const hostilePlate=new THREE.MeshStandardMaterial({color:0x6e4650,metalness:.68,roughness:.36,side:THREE.DoubleSide});
+function download(url) {
  return new Promise((resolve,reject)=>{
-  const loader=new GLTFLoader();
-  loader.load(url,resolve,undefined,reject);
+  new GLTFLoader().load(url,resolve,undefined,reject);
  });
 }
-function makeBody(source,enemy=false) {
- const model=cloneSkeleton(source.scene);
- const container=new THREE.Group();
- container.add(model);
- // The mesh is skinned and has organic silhouette/real animation; remove
- // original textures to avoid display of third-party logos and trademarks.
- let i=0;
- model.traverse(object=>{
-  if(object.isMesh || object.isSkinnedMesh) {
-   const base=enemy?(i++%4===0?enemyArmor:enemySuit):(i++%4===0?armor:suit);
-   object.material=base;
-   object.castShadow=!enemy;
+function createSkinnedActor(asset,host,hostile=false){
+ const root=skeletonClone(asset.scene);
+ root.traverse(object=>{
+  if(object.isMesh||object.isSkinnedMesh){
+   const name=object.name.toLowerCase();
+   object.material=hostile
+    ?(/armor|helmet|suit|metal|head/.test(name)?hostilePlate:hostileFabric)
+    :(/armor|helmet|suit|metal|head/.test(name)?heroMetal:heroFabric);
+   object.castShadow=!hostile;
    object.receiveShadow=false;
    object.frustumCulled=false;
   }
  });
- model.updateMatrixWorld(true);
- const bounds=new THREE.Box3().setFromObject(model);
+ root.updateMatrixWorld(true);
+ const bounds=new THREE.Box3().setFromObject(root);
  const center=bounds.getCenter(new THREE.Vector3());
- const dimensions=bounds.getSize(new THREE.Vector3());
- const scale=2.66/Math.max(.1,dimensions.y);
- model.scale.setScalar(scale);
- model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
- // Cesium rig faces +Z in GLTF; NOCTURNE's forward is -Z.
- model.rotation.y=Math.PI;
- const mixer=new THREE.AnimationMixer(model);
- let walk=null;
- if(source.animations?.length) {
-  const ranked=[...source.animations].sort((a,b)=>
-   Number(/walk|run/i.test(b.name))-Number(/walk|run/i.test(a.name)));
-  walk=mixer.clipAction(ranked[0]);
-  walk.loop=THREE.LoopRepeat;
-  walk.enabled=true;walk.play();walk.weight=0;
- }
- return {container,model,mixer,walk,baseScale:scale,forwardOffset:Math.PI};
+ const box=bounds.getSize(new THREE.Vector3());
+ if(!Number.isFinite(box.y)||box.y<.01)throw new Error('Invalid glTF model bounds');
+ const size=2.65/box.y;
+ root.scale.setScalar(size);
+ root.position.set(-center.x*size,-bounds.min.y*size,-center.z*size);
+ root.rotation.y=Math.PI;
+ const mixer=new THREE.AnimationMixer(root);
+ const clip=asset.animations.find(a=>/walk|run/i.test(a.name))||asset.animations[0];
+ const action=clip?mixer.clipAction(clip):null;
+ if(action){action.enabled=true;action.play();action.weight=0;}
+ const previous=host.children.slice();
+ previous.forEach(obj=>{obj.visible=false;});
+ host.add(root);
+ return {root,mixer,action,host,previous,hostile};
 }
-function decorateActor(actor,enemy=false) {
- const a=actor.container;
- const rim=enemy?threat:glow;
- const arc=new THREE.Mesh(new THREE.TorusGeometry(.14,.018,5,22),rim);
- arc.position.set(0,1.52,-.47);arc.rotation.y=Math.PI;
- arc.visible=false; // only shown if body proportions support this placement
- a.add(arc);
- actor.marker=arc;
-}
-export function createActorSystem({player,enemies,getEnemies,showToast}) {
- const clones=[];
- let loaded=false,failed=false,hero=null;
- const reports={loaded:false,enemyModels:0,clips:[],fallback:true};
- async function start(){
-  let gltf;
-  try{
-   gltf=await loadGLB(LOCAL_URL);
-  }catch(localErr){
-   try{gltf=await loadGLB(MIRROR_URL);}
-   catch(err){
-    failed=true;
-    console.warn('Optional skinned hero asset unavailable; using original fallback.',err);
-    return reports;
-   }
+export function createActorSystem({player,getEnemies,notify}){
+ let asset=null;
+ let hero=null;
+ let npc=[];
+ let started=false;
+ const state={loaded:false,loading:false,error:null,characters:0,animations:[],source:'original procedural'};
+ function attach(){
+  if(!asset)return;
+  if(hero){
+   hero.host.remove(hero.root);
+   hero.previous.forEach(obj=>obj.visible=true);
   }
-  hero=makeBody(gltf,false);
-  // Keep the original procedural animation as a resilient fallback, not on screen.
-  const oldChildren=[...player.children];
-  oldChildren.forEach(o=>{o.visible=false;});
-  decorateActor(hero);
-  player.add(hero.container);
-  const current=getEnemies();
-  current.slice(0,MAX_ENEMIES).forEach((enemy,index)=>{
-   const model=makeBody(gltf,true);
-   const prev=[...enemy.root.children];
-   prev.forEach(o=>{o.visible=false;});
-   enemy.root.add(model.container);
-   clones.push({enemy,actor:model});
-   decorateActor(model,true);
-  });
-  reports.loaded=true;reports.fallback=false;
-  reports.enemyModels=clones.length;
-  reports.clips=gltf.animations.map(a=>a.name);
-  loaded=true;
-  if(showToast)showToast('MODELOS 3D ANIMADOS ACTIVADOS',2.5);
-  return reports;
+  for(const rig of npc){rig.host.remove(rig.root);rig.previous.forEach(obj=>obj.visible=true);}
+  npc=[];
+  hero=createSkinnedActor(asset,player,false);
+  for(const enemy of getEnemies()){
+   if(!enemy.alive)continue;
+   npc.push(createSkinnedActor(asset,enemy.root,true));
+  }
+  state.loaded=true;state.characters=npc.length+1;
+  state.source='CesiumMan / Khronos glTF Sample Assets / CC BY 4.0';
  }
- function update(dt,{speed=0,gliding=false,attacking=false,enemies=[]}={}){
-  if(!loaded)return;
-  if(hero.walk){
-   hero.walk.weight=THREE.MathUtils.damp(hero.walk.weight,Math.min(1,speed/7.5),6,dt);
-   hero.walk.timeScale=Math.max(.2,Math.min(2.3,speed/5.4));
+ async function start(){
+  if(started)return state;
+  started=true;state.loading=true;
+  try{
+   try{asset=await download(MODEL_URL);}
+   catch(_){asset=await download(FALLBACK_URL);}
+   state.animations=asset.animations.map(a=>a.name);
+   attach();
+   notify?.('PERSONAJES 3D ANIMADOS ACTIVADOS',2.5);
+  }catch(error){
+   state.error=String(error?.message||error);
+   console.warn('NOCTURNE: compatible skinned model unavailable, using built-in procedural actors.',error);
+  }finally{state.loading=false;}
+  return state;
+ }
+ function refresh(){
+  if(asset){
+   // Enemies are recreated on each restart. Remove the old rig and attach
+   // new skinned actors without redownloading the 3D asset.
+   attach();
+  }
+ }
+ function update(dt,{speed=0,gliding=false,attacking=false}={}){
+  if(!state.loaded||!hero)return;
+  if(hero.action){
+   hero.action.weight=THREE.MathUtils.damp(hero.action.weight,Math.min(.95,speed/7),6,dt);
+   hero.action.timeScale=THREE.MathUtils.clamp(speed/5,0.25,1.7);
   }
   hero.mixer.update(dt);
-  hero.container.rotation.z=THREE.MathUtils.damp(hero.container.rotation.z,gliding?.12:0,8,dt);
-  hero.container.rotation.x=THREE.MathUtils.damp(hero.container.rotation.x,gliding?-.27:attacking?-.11:0,7,dt);
-  clones.forEach(({enemy,actor})=>{
-   if(!enemy.alive)return;
-   const moving=enemy.root.userData.movingSpeed||0;
-   if(actor.walk){
-    actor.walk.weight=THREE.MathUtils.damp(actor.walk.weight,moving>.1?.72:0,6,dt);
-    actor.walk.timeScale=.75;
+  hero.root.rotation.x=THREE.MathUtils.damp(hero.root.rotation.x,gliding?-.22:attacking?-.08:0,7,dt);
+  for(const rig of npc){
+   if(rig.host.parent===null)continue;
+   const moving=rig.host.userData.movingSpeed||0;
+   if(rig.action){
+    rig.action.weight=THREE.MathUtils.damp(rig.action.weight,moving>.1?.65:0,7,dt);
+    rig.action.timeScale=.83;
    }
-   actor.mixer.update(dt);
-   actor.container.rotation.z=THREE.MathUtils.damp(actor.container.rotation.z,enemy.hit>0?.12:0,11,dt);
-  });
- }
- function onReset(){
-  // Existing enemies are recreated on reset; clone new rigs without a second network load.
-  clones.length=0;
-  if(loaded){
-   loaded=false;
-   player.remove(hero.container);
-   player.children.forEach(c=>c.visible=true);
-   hero=null;
-   return start();
+   rig.mixer.update(dt);
   }
  }
- return {start,update,onReset,report:()=>({...reports,failed})};
+ return {start,refresh,update,get loaded(){return state.loaded;},get state(){return {...state};}};
 }
