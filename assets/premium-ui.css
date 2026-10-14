@@ -43,3 +43,51 @@ body{background:#030812}
 @media(pointer:coarse) and (orientation:landscape){.graphics-settings{padding:6px 0;margin:8px 0}.graphics-options button{padding:6px 3px}.graphics-settings small{display:none}.modal-card{padding:17px}.modal-card h2{font-size:23px;margin:6px 0}.modal-card p{margin-bottom:12px}}
 @media(max-width:380px){.graphics-options{gap:3px}.graphics-options button{font-size:8px}.start-card h1{letter-spacing:.08em}}
 @media(prefers-reduced-motion:reduce){.launch-button,.graphics-options button{transition:none}}
+
+/* v3: five-button ergonomics, compact landscape objective and cinematic framing */
+@media(pointer:coarse){
+  .touch-actions{grid-template-columns:repeat(3,62px);grid-template-rows:repeat(2,64px);gap:8px;transform:none;right:max(16px,env(safe-area-inset-right));bottom:max(27px,env(safe-area-inset-bottom))}
+  .touch-actions .action-button{transform:none}
+  .touch-actions .action-button:active,.touch-actions .action-button.pressed{transform:scale(.94)}
+  .touch-actions [data-action="grapple"]{grid-column:1;grid-row:1}
+  .touch-actions [data-action="glide"]{grid-column:2;grid-row:1}
+  .touch-actions [data-action="dodge"]{grid-column:1;grid-row:2}
+  .touch-actions [data-action="jump"]{grid-column:2;grid-row:2}
+  .touch-actions [data-action="attack"]{grid-column:3;grid-row:2}
+  .touch-actions .action-button.primary{width:69px;height:69px;align-self:center;justify-self:center}
+  .touch-actions .action-button span{font-size:26px}
+  .touch-actions .action-button small{font-size:7.5px}
+  .hud .topbar{z-index:3}
+  .joystick{width:125px;height:125px}
+  .joystick-knob{left:36px;top:36px}
+}
+@media(pointer:coarse) and (orientation:landscape){
+  .touch-actions{grid-template-columns:repeat(3,57px);grid-template-rows:repeat(2,57px);gap:8px;right:max(20px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom))}
+  .touch-actions .action-button.primary{width:62px;height:62px}
+  .touch-actions .action-button span{font-size:23px}
+  .joystick{width:112px;height:112px;bottom:max(15px,env(safe-area-inset-bottom))}
+  .joystick-knob{left:32px;top:32px;width:45px;height:45px}
+  .mission-panel{top:114px!important;width:197px;padding:9px 12px 8px}
+  .mission-panel h2{font-size:13px;margin:4px 0 7px}
+  .mission-panel .objective{margin:4px 0;font-size:9px}
+  .mission-panel .eyebrow{font-size:7px}
+  .mission-panel .objective-icon{font-size:12px}
+  .bottom-info{top:101px!important;left:max(17px,env(safe-area-inset-left))}
+  .status-panel{top:52px!important;left:max(17px,env(safe-area-inset-left));width:155px}
+  .status-line{font-size:7px}
+  .mission-panel p{display:none}
+  .minimap-container{right:max(20px,env(safe-area-inset-right));top:48px}
+  .target-label{bottom:20%;font-size:8px}
+  .start-tag{font-size:8px}
+}
+@media(pointer:coarse) and (orientation:portrait){
+  .touch-actions{grid-template-columns:repeat(2,65px);grid-template-rows:repeat(3,61px)}
+  .touch-actions [data-action="grapple"]{grid-column:1;grid-row:1}
+  .touch-actions [data-action="glide"]{grid-column:2;grid-row:1}
+  .touch-actions [data-action="dodge"]{grid-column:1;grid-row:2}
+  .touch-actions [data-action="jump"]{grid-column:2;grid-row:2}
+  .touch-actions [data-action="attack"]{grid-column:2;grid-row:3}
+  .mission-panel{top:182px;max-width:186px}
+  .bottom-info{top:160px}
+  .joystick{bottom:max(58px,env(safe-area-inset-bottom))}
+}
