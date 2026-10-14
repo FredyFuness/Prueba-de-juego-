@@ -26,6 +26,8 @@ jobs:
         run: node --check src/actors.js
       - name: Validar ciudad detallada
         run: node --check src/city-v4.js
+      - name: Validar carrocerías y detalles urbanos
+        run: node --check src/vehicles.js
       - name: Validar controles, interfaz y PWA
         run: node tests/smoke.mjs
 
