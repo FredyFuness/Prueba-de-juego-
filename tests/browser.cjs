@@ -41,6 +41,18 @@ const executable='/usr/bin/google-chrome';
     assert(!diagnostics.startupStack,'Game startup failed: '+diagnostics.startupStack);
     await page.waitForFunction(()=>document.querySelector('#hud')&&!document.querySelector('#hud').classList.contains('hidden'),{timeout:15000});
     await page.waitForSelector('[data-action="dodge"]');
+    const missionCollapsed=await page.evaluate(()=>({
+      hidden:getComputedStyle(document.querySelector('#mission-panel')).display==='none',
+      toggle:getComputedStyle(document.querySelector('#mission-toggle')).display!=='none',
+      progress:document.querySelector('#quick-progress')?.textContent
+    }));
+    assert(missionCollapsed.hidden,'Phone mission panel should start collapsed');
+    assert(missionCollapsed.toggle,'Mobile mission toggle should be visible');
+    assert(missionCollapsed.progress.includes('0/3'),'Compact mission status was not populated');
+    await page.click('#mission-toggle');
+    assert(await page.evaluate(()=>document.querySelector('#mission-panel').classList.contains('expanded')),'Tapping objectives did not expand mission');
+    await page.click('#mission-toggle');
+    assert(await page.evaluate(()=>!document.querySelector('#mission-panel').classList.contains('expanded')),'Tapping objectives did not collapse mission');
     await page.screenshot({path:'/tmp/nocturne-gameplay.png'});
     const state=await page.evaluate(()=>{
       const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}};
