@@ -77,6 +77,17 @@ function chime(freq = 460, duration = 0.1, wave = 'sine', gain = 0.055) {
     oscillator.stop(audioContext.currentTime + duration);
   } catch (_) { /* Audio is optional on restricted mobile browsers. */ }
 }
+function readCareer(){
+  try{
+    const value=JSON.parse(localStorage.getItem(RECORD_KEY)||'{}');
+    return {runs:Number(value.runs)||0,wins:Number(value.wins)||0,best:Number(value.best)||0};
+  }catch(_){return {runs:0,wins:0,best:0};}
+}
+function updateCareer(){
+  const r=readCareer();
+  const el=$('career-summary');
+  if(el)el.textContent='MEJOR PUNTUACIÓN '+r.best+' · VICTORIAS '+r.wins+' · PARTIDAS '+r.runs;
+}
 function notify(text, seconds = 2.7) {
   ui.toast.textContent = text;
   ui.toast.classList.add('visible');
@@ -425,6 +436,29 @@ function emitParticles(x, y, z, color = 0x77e8ff, count = 12) {
   }
   effects.push(...dots);
 }
+function doSpecial(){
+  if(!state.active||state.paused||state.finished)return;
+  if(state.special<100){notify('EMP RECARGANDO · '+Math.floor(state.special)+'%',1.2);return;}
+  state.special=0;
+  cameraShake=.23;
+  state.damageCooldown=.5;
+  encounter?.firePulse(8.5);
+  let stunned=0;
+  for(const e of enemies){
+    if(!e.alive)continue;
+    if(Math.hypot(e.root.position.x-playerPosition.x,e.root.position.z-playerPosition.z)>8.5)continue;
+    e.stun=2.5;e.hit=.6;e.attackWindup=0;e.hp--;
+    stunned++;emitParticles(e.root.position.x,1.55,e.root.position.z,0x62e8ff,12);
+    if(e.hp<=0){
+      e.alive=false;scene.remove(e.root,e.ring);state.defeated++;state.score+=260;
+      checkFinished();
+    }
+  }
+  state.score+=stunned*65;
+  notify('IMPULSO EMP · '+stunned+' HOSTILES AFECTADOS',2);
+  chime(820,.3,'sawtooth',.08);
+  updateHUD();
+}
 function doDodge(){
   if(!state.active||state.paused||state.finished||state.dodgeCooldown>0||state.grapple)return;
   const x=-Math.sin(player.rotation.y),z=-Math.cos(player.rotation.y);
@@ -433,8 +467,14 @@ function doDodge(){
     if(isBlocked(nextX,nextZ,playerPosition.y))break;
     playerPosition.x=nextX;playerPosition.z=nextZ;
   }
+  const perfect=enemies.some(e=>e.alive&&e.attackWindup>0&&Math.hypot(e.root.position.x-playerPosition.x,e.root.position.z-playerPosition.z)<4);
   state.dodgeTime=.4;
   state.dodgeCooldown=1.3;
+  if(perfect){
+    state.special=Math.min(100,state.special+25);
+    state.score+=120;
+    notify('ESQUIVA PERFECTA · +120',1.5);
+  }
   state.damageCooldown=.44;
   cameraShake=.055;
   chime(440,.12,'triangle',.02);
@@ -537,16 +577,20 @@ function endGame(won){
 }
 function resetGame() {
   playerPosition.set(0, 0, 0);
-  state.health=100; state.score=0; state.data=0; state.defeated=0;
+  state.health=100; state.score=0; state.data=0; state.defeated=0;state.special=35;state.act=1;
   state.grappleCooldown=0; state.attackCooldown=0; state.damageCooldown=0;
   state.glide=false; state.grounded=true; state.velocityY=0; state.grapple=null;
-  state.dodgeCooldown=0;state.dodgeTime=0;state.comboTime=0;state.movingSpeed=0;
+  state.dodgeCooldown=0;state.dodgeTime=0;state.comboTime=0;state.comboHits=0;state.movingSpeed=0;
   state.camYaw=0; state.camPitch=.36; state.time=0; state.finished=false;
   for (const e of enemies) { scene.remove(e.root, e.ring); }
   for (const item of intelItems) scene.remove(item.root);
   for (const effect of effects) scene.remove(effect.obj);
   enemies=[]; intelItems=[]; effects=[];
+  encounter?.reset();
   createEnemies(); createIntel();
+  $('mission-phase').textContent='ACTO I · RECUPERA EL DISTRITO';
+  $('mission-title').textContent='Recuperar el distrito';
+  $('objective-hint').textContent='Recupera tres archivos y neutraliza a las patrullas.';
   actorSystem?.refresh();
   grappleLine.visible=false;
   player.position.copy(playerPosition);
@@ -700,6 +744,7 @@ function updateIntel(dt) {
       scene.remove(item.root);
       state.data++;
       state.score += 350;
+      state.special=Math.min(100,state.special+22);
       emitParticles(item.x,1.4,item.z,0x5becff,17);
       notify('NÚCLEO RECUPERADO  +350');
       chime(660, .27, 'sine', .095);
@@ -805,6 +850,12 @@ function drawMinimap() {
     ctx.beginPath();ctx.arc((item.x-playerPosition.x)*scale,(item.z-playerPosition.z)*scale,4,0,TAU);ctx.fill();
   }
   ctx.shadowBlur=0;
+  const boss=encounter?.boss;
+  if(boss?.active){
+    const px=(boss.group.position.x-playerPosition.x)*scale,pz=(boss.group.position.z-playerPosition.z)*scale;
+    ctx.strokeStyle='#ff5377';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(px,pz,8,0,TAU);ctx.stroke();
+  }
   for(const e of enemies) if(e.alive){
     ctx.fillStyle='#ff6977';
     ctx.beginPath();ctx.arc((e.root.position.x-playerPosition.x)*scale,(e.root.position.z-playerPosition.z)*scale,3.5,0,TAU);ctx.fill();
@@ -879,6 +930,7 @@ function bindInput() {
     if(event.code==='KeyG')doGlide();
     if(event.code==='KeyL'||event.code==='ControlLeft')doDodge();
     if(event.code==='KeyF')doGrapple();
+    if(event.code==='KeyE')doSpecial();
     if(event.code==='Escape'||event.code==='KeyP')state.paused?resumeGame():pauseGame();
   });
   window.addEventListener('keyup',event=>keys.delete(event.code));
@@ -918,6 +970,7 @@ function bindInput() {
       else if(action==='grapple')doGrapple();
       else if(action==='attack')doAttack();
       else if(action==='dodge')doDodge();
+      else if(action==='special')doSpecial();
       button.classList.add('pressed');
     });
     for(const type of ['pointerup','pointercancel','pointerleave']){
@@ -954,9 +1007,14 @@ function tick() {
     state.dodgeTime=Math.max(0,state.dodgeTime-dt);
     state.dodgeCooldown=Math.max(0,state.dodgeCooldown-dt);
     state.comboTime=Math.max(0,state.comboTime-dt);
+    if(state.comboTime<=0)state.comboHits=0;
+    state.special=Math.min(100,state.special+dt*1.5);
     updatePlayer(dt);
     updateEnemies(dt);
-    updateIntel(dt);
+    if(state.active)updateIntel(dt);
+    if(state.active)encounter?.update(dt,{health:state.health,heal:amount=>{
+      state.health=Math.min(100,state.health+amount);updateHUD();
+    }});
     updateEffects(dt);
     updateRain(dt);
     if(state.toastTime>0) {
