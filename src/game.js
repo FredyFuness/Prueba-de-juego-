@@ -271,17 +271,25 @@ function createPlayer() {
   scene.add(player);
   player.position.copy(playerPosition);
 }
-function createEnemy(x,z,index) {
+function createEnemy(x,z,index,type='scout'){
   const root=makeRaider();
   root.position.set(x,0,z);
+  root.scale.setScalar(type==='heavy'?1.20:type==='ranger'?.93:1);
   scene.add(root);
-  const ring=mesh(new THREE.TorusGeometry(.92,.023,4,28),
-    new THREE.MeshBasicMaterial({color:0xff667e,transparent:true,opacity:.44}),scene,x,.09,z);
+  const tone=type==='heavy'?0xffb263:type==='ranger'?0xba82ff:0xff667e;
+  const ring=mesh(new THREE.TorusGeometry(type==='heavy'?1.13:.93,.032,4,32),
+    new THREE.MeshBasicMaterial({color:tone,transparent:true,opacity:.55}),scene,x,.10,z);
   ring.rotation.x=Math.PI/2;
-  enemies.push({root,ring,x,z,hp:3,alive:true,cd:index*.3,hit:0,phase:index*2.1});
+  const hp=type==='heavy'?6:type==='ranger'?3:2;
+  const entity={root,ring,x,z,type,hp,maxHp:hp,alive:true,cd:index*.3,
+    attackWindup:0,shootCooldown:1.5+index*.42,hit:0,phase:index*2.1,stun:0};
+  enemies.push(entity);
 }
-function createEnemies() {
-  [[0,-18], [0,-51], [28,0], [-30,0], [0,48]].forEach((pos,i) => createEnemy(pos[0],pos[1],i));
+function createEnemies(){
+  const cast=[
+    [0,-18,'scout'],[0,-51,'heavy'],[28,0,'ranger'],[-30,0,'scout'],[0,48,'ranger']
+  ];
+  cast.forEach(([x,z,type],i)=>createEnemy(x,z,i,type));
 }
 function createIntel() {
   [[0,-35], [38,0], [-42,0]].forEach(([x,z],i) => {
@@ -431,35 +439,52 @@ function doDodge(){
   cameraShake=.055;
   chime(440,.12,'triangle',.02);
 }
-function doAttack() {
-  if (!state.active || state.paused || state.finished || state.attackCooldown > 0) return;
-  state.attackCooldown = .37;
-  state.comboTime=1.1;
+function doAttack(){
+  if(!state.active||state.paused||state.finished||state.attackCooldown>0)return;
+  state.attackCooldown=.34;
+  state.comboTime=1.35;
+  state.comboHits=Math.min(state.comboHits+1,12);
   attackCombo=(attackCombo+1)%3;
-  cameraShake=.08;
-  chime(115, .12, 'triangle', .09);
-  const candidates = enemies.filter(e => e.alive && playerPosition.distanceTo(e.root.position) < 4.1
-    && Math.abs(playerPosition.y - e.root.position.y) < 3.0);
-  candidates.sort((a,b) => playerPosition.distanceTo(a.root.position) - playerPosition.distanceTo(b.root.position));
-  const target = candidates[0];
-  if (!target) return;
-  target.hp -= 1;
-  const toTarget=Math.atan2(-(target.root.position.x-playerPosition.x),-(target.root.position.z-playerPosition.z));
-  player.rotation.y=toTarget;
-  target.hit = .2;
-  target.root.position.x += (target.x - playerPosition.x) * .05;
-  target.root.position.z += (target.z - playerPosition.z) * .05;
-  emitParticles(target.root.position.x, 1.4, target.root.position.z, 0xff9b62, 9);
-  state.score += 35;
-  chime(180, .1, 'square', .035);
-  if (target.hp <= 0) {
-    target.alive = false;
-    scene.remove(target.root, target.ring);
-    state.defeated++;
-    state.score += 200;
-    notify('HOSTIL NEUTRALIZADO  +200');
-    chime(480, .27, 'triangle');
-    checkFinished();
+  cameraShake=.075;
+  chime(135+(attackCombo*45),.12,'triangle',.074);
+  const candidates=enemies.filter(e=>e.alive&&Math.hypot(playerPosition.x-e.root.position.x,playerPosition.z-e.root.position.z)<4.55
+    &&Math.abs(playerPosition.y-e.root.position.y)<3.0);
+  candidates.sort((a,b)=>Math.hypot(playerPosition.x-a.root.position.x,playerPosition.z-a.root.position.z)
+    -Math.hypot(playerPosition.x-b.root.position.x,playerPosition.z-b.root.position.z));
+  const target=candidates[0];
+  const multiplier=state.comboHits>=6?3:state.comboHits>=3?2:1;
+  if(target){
+    const damage=attackCombo===2?2:1;
+    target.hp-=damage;
+    target.stun=.35;
+    target.hit=.24;
+    target.attackWindup=0;
+    target.ring.material.opacity=1;
+    const facing=Math.atan2(-(target.root.position.x-playerPosition.x),-(target.root.position.z-playerPosition.z));
+    player.rotation.y=facing;
+    emitParticles(target.root.position.x,1.45,target.root.position.z,0xffb582,12);
+    state.score+=35*multiplier;
+    state.special=Math.min(100,state.special+14+damage*3);
+    cameraShake=.12;
+    chime(215,.11,'square',.025);
+    if(target.hp<=0){
+      target.alive=false;
+      scene.remove(target.root,target.ring);
+      state.defeated++;
+      state.score+=200*multiplier;
+      if(state.defeated%2===0)encounter?.dropHeal(target.root.position.x,target.root.position.z);
+      notify('HOSTIL NEUTRALIZADO · COMBO ×'+multiplier,1.7);
+      chime(530,.27,'triangle',.065);
+      checkFinished();
+    }else if(multiplier>=2){
+      notify('COMBO ×'+state.comboHits+' · IMPACTO MEJORADO',.7);
+    }
+  }else if(state.act===2&&encounter?.hitBoss(attackCombo===2?2:1)){
+    state.special=Math.min(100,state.special+16);
+    state.score+=70*multiplier;
+    cameraShake=.20;
+  }else{
+    state.comboHits=Math.max(0,state.comboHits-1);
   }
   updateHUD();
 }
@@ -473,24 +498,42 @@ function hurt(amount) {
   updateHUD();
   if (state.health <= 0) endGame(false);
 }
-function checkFinished() {
-  if (state.data >= 3 && state.defeated >= 5) endGame(true);
+function checkFinished(){
+  if(state.finished||!state.active)return;
+  if(state.act===1&&state.data>=3&&state.defeated>=5){
+    state.act=2;
+    state.score+=500;
+    state.health=Math.min(100,state.health+30);
+    state.special=Math.max(state.special,70);
+    $('mission-phase').textContent='ACTO II · EL CENTINELA';
+    $('mission-title').textContent='Desactiva al Centinela';
+    $('objective-hint').textContent='Ve al norte, evita las descargas y ataca el núcleo del jefe.';
+    encounter?.startBoss();
+    updateHUD();
+    chime(770,.43,'sawtooth',.04);
+  }
 }
-function endGame(won) {
-  state.finished = true;
-  state.active = false;
-  state.grapple = null;
-  grappleLine.visible = false;
-  $('result-tag').textContent = won ? 'MISIÓN COMPLETADA' : 'MISIÓN FALLIDA';
-  $('result-title').textContent = won ? 'Distrito recuperado.' : 'La ciudad te necesita.';
-  $('result-description').textContent = won
-    ? 'Recuperaste los archivos y detuviste a los hostiles. Esta noche, Ciudad de Sombras está a salvo.'
-    : 'La patrulla ha terminado. Reagrúpate y vuelve a intentarlo.';
-  $('final-score').textContent = String(state.score).padStart(4, '0');
-  $('final-enemies').textContent = state.defeated + ' / 5';
-  ui.finish.classList.remove('hidden');
-  ui.hud.classList.add('hidden');
-  chime(won ? 880 : 180, .45, 'triangle', .09);
+function endGame(won){
+  if(state.finished)return;
+  state.finished=true;
+  state.active=false;
+  state.grapple=null;
+  grappleLine.visible=false;
+  $('result-tag').textContent=won?'CAMPAÑA COMPLETADA':'PATRULLA FINALIZADA';
+  $('result-title').textContent=won?'La ciudad está a salvo.':'Aún hay esperanza.';
+  $('result-description').textContent=won
+    ?'Recuperaste los archivos, desactivaste a las patrullas y venciste al Centinela. El distrito vuelve a respirar.'
+    :'Los enemigos lograron detenerte. Conoces mejor sus ataques: vuelve a intentarlo y supera tu récord.';
+  $('final-score').textContent=String(state.score).padStart(4,'0');
+  $('final-enemies').textContent=state.defeated+' / 5';
+  const record=readCareer();
+  record.runs++;
+  if(won)record.wins++;
+  if(state.score>record.best)record.best=state.score;
+  try{localStorage.setItem(RECORD_KEY,JSON.stringify(record));}catch(_){}
+  $('career-result').textContent='MEJOR PUNTUACIÓN: '+record.best+'  ·  VICTORIAS: '+record.wins;
+  ui.finish.classList.remove('hidden');ui.hud.classList.add('hidden');
+  chime(won?880:180,.45,'triangle',.08);
 }
 function resetGame() {
   playerPosition.set(0, 0, 0);
