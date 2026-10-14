@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { installPremiumGraphics } from './premium-graphics.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('game-canvas');
@@ -22,6 +23,8 @@ const state = {
 const moveInput = { x: 0, z: 0 };
 const keys = new Set();
 let renderer, scene, camera, player, cape, leftArm, rightArm, leftLeg, rightLeg;
+let premiumGraphics=null;
+let qualityAuto=true, qualityTimer=0, qualityFrames=0, slowIntervals=0;
 let rain, rainPositions, grappleLine, grapplePositions, playerLight;
 let buildings = [], enemies = [], intelItems = [], effects = [];
 let audioContext = null;
@@ -111,6 +114,7 @@ function setupScene() {
   createIntel();
   createRain();
   createGrapple();
+  premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
   window.addEventListener('resize', resize);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && state.active && !state.paused && !state.finished) pauseGame();
@@ -733,12 +737,30 @@ function resize() {
   camera.aspect=w/h;camera.updateProjectionMatrix();
   renderer.setSize(w,h,false);
 }
+function syncQualityButtons(){
+  const active=premiumGraphics?.getQuality();
+  for(const b of document.querySelectorAll('[data-quality]')){
+    const selected=b.dataset.quality===active;
+    b.classList.toggle('active',selected);
+    b.setAttribute('aria-pressed',String(selected));
+  }
+}
 function bindInput() {
   $('start-button').addEventListener('click', resetGame);
   $('pause-button').addEventListener('click',pauseGame);
   $('resume-button').addEventListener('click',resumeGame);
   $('restart-button').addEventListener('click',resetGame);
   $('replay-button').addEventListener('click',resetGame);
+  for(const button of document.querySelectorAll('[data-quality]')){
+    button.addEventListener('click',()=>{
+      if(!premiumGraphics)return;
+      qualityAuto=false;
+      premiumGraphics.setQuality(button.dataset.quality);
+      syncQualityButtons();
+      notify('GRÁFICOS: '+button.textContent.trim().toUpperCase());
+    });
+  }
+  syncQualityButtons();
   window.addEventListener('keydown',event=>{
     const movement=['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
     if(movement.includes(event.code)) event.preventDefault();
@@ -838,6 +860,21 @@ function tick() {
     updateRain(dt*.35);
   }
   updateCamera(dt);
+  if(premiumGraphics){
+    premiumGraphics.update(dt,state.time,playerPosition,state.glide);
+    if(MOBILE && qualityAuto && state.active && !state.paused){
+      qualityTimer+=dt;qualityFrames++;
+      if(qualityTimer>=2.8){
+        const fps=qualityFrames/qualityTimer;
+        slowIntervals=fps<27?slowIntervals+1:0;
+        if(slowIntervals>=2 && premiumGraphics.getQuality()!=='eco'){
+          premiumGraphics.setQuality('eco');syncQualityButtons();
+          qualityAuto=false;notify('MODO AHORRO ACTIVADO PARA MÁS FLUIDEZ',3);
+        }
+        qualityTimer=0;qualityFrames=0;
+      }
+    }
+  }
   renderer.render(scene,camera);
 }
 try {
