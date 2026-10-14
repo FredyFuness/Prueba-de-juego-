@@ -24,3 +24,26 @@ jobs:
         run: node --check src/hero.js
       - name: Validar controles, interfaz y PWA
         run: node tests/smoke.mjs
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Preparar pruebas de navegador
+        run: npm install --no-save --no-package-lock puppeteer-core@24.29.0
+      - name: Probar juego real en Chrome móvil emulado
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/nocturne-server.log 2>&1 &
+          sleep 2
+          node tests/browser.cjs
+      - name: Guardar capturas de prueba
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nocturne-browser-screenshots
+          path: |
+            /tmp/nocturne-intro.png
+            /tmp/nocturne-gameplay.png
+          if-no-files-found: ignore
