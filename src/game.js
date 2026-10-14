@@ -118,7 +118,7 @@ function setupScene() {
   createIntel();
   createRain();
   createGrapple();
-  actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify});
+  actorSystem=createActorSystem({player,getEnemies:()=>enemies,notify,cape:heroRig.cape});
   premiumGraphics=installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE});
   actorSystem.start().then(result=>{
     window.__nocturneModelStatus={loaded:result.loaded,characters:result.characters,error:result.error};
@@ -570,7 +570,7 @@ function updatePlayer(dt) {
   player.position.z=playerPosition.z;
   if(state.grapple)player.position.y=playerPosition.y;
   const movingSpeed=state.grapple?15:state.movingSpeed;
-  if(!actorSystem?.loaded)heroRig.animate(dt,movingSpeed,state.glide,state.attackCooldown>.1,state.dodgeTime>0);
+  heroRig.animate(dt,movingSpeed,state.glide,state.attackCooldown>.1,state.dodgeTime>0);
   if (state.grapple) {
     const pos = grappleLine.geometry.attributes.position;
     pos.setXYZ(0, playerPosition.x, playerPosition.y + 1.9, playerPosition.z);
