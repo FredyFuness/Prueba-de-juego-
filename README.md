@@ -12,7 +12,7 @@ Publicado por GitHub Pages desde `main` (raíz del repositorio). En iPhone, abre
 
 | Fase | Implementación |
 |---|---|
-| **1. Personajes** | Humanoide real 3D `glTF/GLB` con esqueleto, animaciones y materiales PBR; guardado localmente. Enemigos con la misma estructura animada y materiales diferenciados. Respaldo procedural si no puede cargarse. |
+| **1. Personajes** | Modelo Soldier 3D con esqueleto, texturas y animaciones específicas Idle/Walk/Run, guardado localmente. Casco, visor y capa propios; enemigos con materiales diferenciados. Si falla, usa CesiumMan o el personaje procedural. |
 | **2. Ciudad** | Atlas de texturas generado proceduralmente, fachadas con ventanas, marcos y piedra; cornisas, balcones, escaleras externas, calles comerciales, maquinaria y siluetas de tejados variadas. |
 | **3. Atmósfera** | Lluvia 3D, cielo nocturno, neones, charcos estilizados, iluminación cálida, bruma, coches, vegetación y detalles urbanos. |
 | **4. Jugabilidad** | Cámara sobre el hombro con suavizado y prevención básica de colisiones, ataque, esquiva, gancho, salto, planeo, vida, enemigos y tres núcleos de datos. |
@@ -79,6 +79,7 @@ Prueba-de-juego-/
 │   ├── premium-ui.css
 │   └── models/
 │       ├── cesium-man.glb
+│       ├── soldier.glb
 │       └── README.md
 ├── src/
 │   ├── game.js
@@ -97,6 +98,6 @@ Prueba-de-juego-/
 
 ## Licencias y atribución
 
-El modelo base animado **CesiumMan** es © **Cesium (2017)**, distribuido por Khronos glTF Sample Assets bajo **CC BY 4.0**. Adaptado en tiempo de ejecución mediante escala, rotación, materiales, y uso como personajes del juego. Las texturas y marcas originales no se muestran: se aplican materiales propios de NOCTURNE. Consulta [avisos del modelo](./assets/models/README.md) y [fuente original](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CesiumMan). La atribución debe conservarse en redistribuciones.
+**Soldier.glb**, modelo con animaciones Idle/Walk/Run usado en los ejemplos oficiales de [Three.js](https://github.com/mrdoob/three.js/blob/r164/examples/models/gltf/Soldier.glb) (colaborador Mugen87); se utiliza con los avisos y términos del proyecto fuente. El modelo secundario **CesiumMan** es © **Cesium (2017)** bajo **CC BY 4.0**, distribuido por Khronos glTF Sample Assets, y solo se usa si el primero no puede cargarse. Ambos se modifican en tiempo de ejecución; se conserva el reconocimiento a los autores. Revisa las condiciones y enlaces en [avisos del modelo](./assets/models/README.md).
 
 Los elementos urbanos, superficies y detalles procedurales originales están implementados en este repositorio.
