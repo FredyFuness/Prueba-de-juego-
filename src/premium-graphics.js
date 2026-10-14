@@ -1,6 +1,7 @@
 // NOCTURNE / Premium environmental art direction.
 // Procedural textures and reusable instancing: no external models or copyrighted assets.
 import * as THREE from 'three';
+import { installCityV4 } from './city-v4.js';
 
 const random = (a, b = 0) => {
   const n = Math.sin(a * 127.1 + b * 311.7 + 18.19) * 43758.5453123;
@@ -441,6 +442,7 @@ export function installPremiumGraphics({scene,camera,renderer,buildings,player,m
   const sky=createAtmosphere(scene);
   makeWetStreets(scene);
   addArchitecture(scene,buildings);
+  installCityV4({scene,buildings,mobile});
   const neon=neonDistrict(scene,glow);
   createVehicles(scene,glow);
   dressCity(scene,glow);
