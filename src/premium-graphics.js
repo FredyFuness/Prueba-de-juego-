@@ -112,7 +112,7 @@ function signTexture(text, accent, subtitle) {
   return texture;
 }
 function planarEllipse(scene, x, z, sx, sy, color, alpha, rotation=0) {
-  const obj=new THREE.Mesh(new THREE.PlaneGeometry(1,1),basic(color,alpha,true));
+  const obj=new THREE.Mesh(new THREE.CircleGeometry(1,20),basic(color,alpha,true));
   obj.rotation.x=-Math.PI/2;obj.rotation.z=rotation;
   obj.scale.set(sx,sy,1);obj.position.set(x,.069,z);
   scene.add(obj);
