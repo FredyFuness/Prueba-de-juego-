@@ -1,0 +1,35 @@
+name: Incorporar modelo 3D con licencia
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/vendor-characters.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Descargar humanoide GLB original desde Khronos
+        run: |
+          mkdir -p assets/models
+          curl -fL --retry 4 --connect-timeout 20 --max-time 120 \
+            https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb \
+            -o assets/models/cesium-man.glb
+          test "$(wc -c < assets/models/cesium-man.glb)" -gt 300000
+          test "$(head -c 4 assets/models/cesium-man.glb)" = glTF
+          sha256sum assets/models/cesium-man.glb
+      - name: Guardar archivo local en repositorio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/models/cesium-man.glb
+          if ! git diff --cached --quiet; then
+            git commit -m "assets: vendor CC BY 4.0 animated humanoid glTF"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
