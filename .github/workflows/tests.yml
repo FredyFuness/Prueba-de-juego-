@@ -1,0 +1,22 @@
+name: Verificar juego
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Validar sintaxis del motor
+        run: node --check src/game.js
+      - name: Validar controles, interfaz y PWA
+        run: node tests/smoke.mjs
