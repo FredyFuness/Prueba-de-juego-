@@ -55,4 +55,5 @@ jobs:
             /tmp/nocturne-intro.png
             /tmp/nocturne-gameplay.png
             /tmp/nocturne-portrait.png
+            /tmp/nocturne-victory.png
           if-no-files-found: ignore
