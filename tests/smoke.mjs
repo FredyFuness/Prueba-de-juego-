@@ -39,7 +39,7 @@ assert(html.includes('assets/premium-ui.css'), 'La interfaz no carga los estilos
 assert(js.includes("from './premium-graphics.js'"), 'El motor no importa el módulo premium');
 assert(js.includes('installPremiumGraphics({scene,camera,renderer,buildings,player,mobile:MOBILE})'), 'El motor premium no se inicializa');
 assert(js.includes('premiumGraphics.update('), 'La escena cinematográfica no se anima');
-assert(html.includes('EDICIÓN DEFINITIVA'), 'Falta identificación de nueva edición');
+assert(html.includes('EDICIÓN CINEMATOGRÁFICA · 4.0'), 'Falta identificación de edición 4.0');
 for (const mode of ['eco', 'balanced', 'cinematic']) {
   assert(html.includes('data-quality="' + mode + '"'), 'Falta control gráfico: '+mode);
 }
@@ -58,5 +58,18 @@ assert(html.includes('data-action="dodge"'), 'Falta botón móvil para esquivar'
 assert(js.includes('new THREE.LineSegments'), 'Faltan partículas de lluvia realistas');
 assert(js.includes('function updateCamera(dt)'), 'Falta cámara cinematográfica');
 assert(sw.includes('premium-ui.css'), 'La caché no incluye los estilos premium');
+for(const path of ['src/actors.js','src/city-v4.js','assets/models/cesium-man.glb','assets/models/README.md']){
+  assert(existsSync(join(root,path)), 'Falta recurso de la reconstrucción: '+path);
+}
+const model=readFileSync(join(root,'assets/models/cesium-man.glb'));
+assert(model.byteLength>300000, 'El modelo 3D real está incompleto');
+assert(model.subarray(0,4).toString('ascii')==='glTF','El modelo 3D no es un glTF binario válido');
+assert(html.includes('three/addons/'), 'No está configurado GLTFLoader en el import map');
+assert(js.includes("from './actors.js'"), 'No se usa el modelo humanoide real');
+assert(js.includes('actorSystem.start()'), 'No se inicializa el modelo humanoide');
+assert(premium.includes("from './city-v4.js'"), 'No se cargan fachadas detalladas');
+assert(sw.includes('cesium-man.glb'), 'La PWA no cachea el modelo 3D local');
+assert(sw.includes('city-v4.js'), 'La PWA no cachea el nuevo entorno');
+assert(sw.includes('actors.js'), 'La PWA no cachea los actores animados');
 assert(html.includes('id="start-button"'), 'No hay forma de iniciar una partida');
 console.log('✓ Smoke test: DOM, controles móviles, recursos, PWA y motor 3D OK');
