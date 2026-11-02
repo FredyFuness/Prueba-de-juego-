@@ -58,14 +58,17 @@ La fase 1 utiliza una malla humana animada REAL y un recurso GLB local, no un hu
 | Caminar | W, A, S, D o flechas |
 | Correr | Shift |
 | Cámara | Arrastrar mouse |
-| Atacar | J o K |\n| Impulso EMP | E |
+| Atacar | J o K |
+| Impulso EMP | E |
 | Esquivar | L o Control izquierdo |
 | Saltar | Espacio |
 | Planear | G |
 | Gancho | F |
 | Pausa | P o Escape |
 
-### Misión inicial y jefe\n\nRecupera **3 núcleos de datos** y derrota **5 enemigos**. Después, dirígete al norte para enfrentarte al Centinela. Esquiva su onda de choque, evita los disparos y ataca su núcleo. La campaña termina con una victoria o derrota; puedes volver a jugar y superar tu récord.
+### Misión inicial y jefe
+
+Recupera **3 núcleos de datos** y derrota **5 enemigos**. Después, dirígete al norte para enfrentarte al Centinela. Esquiva su onda de choque, evita los disparos y ataca su núcleo. La campaña termina con una victoria o derrota; puedes volver a jugar y superar tu récord.
 
 ## Tecnologías
 
@@ -100,7 +103,8 @@ Prueba-de-juego-/
 │       ├── soldier.glb
 │       └── README.md
 ├── src/
-│   ├── encounter.js\n│   ├── game.js
+│   ├── encounter.js
+│   ├── game.js
 │   ├── actors.js
 │   ├── hero.js
 │   ├── premium-graphics.js
